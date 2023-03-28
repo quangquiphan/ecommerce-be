@@ -3,7 +3,6 @@ package com.spring.boot.ecommerce.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
-import com.spring.boot.ecommerce.auth.AuthSessionResolver;
 import com.spring.boot.ecommerce.config.jwt.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(new AuthSessionResolver(jwtTokenUtil));
         WebMvcConfigurer.super.addArgumentResolvers(argumentResolvers);
     }
 

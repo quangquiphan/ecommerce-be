@@ -35,8 +35,7 @@ public class ProductController extends AbstractBaseController {
         AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
         return responseUtil.successResponse( new ProductResponse(
                         productService.addProduct(productRequest, authUser),
-                        productRequest.getCategoryIds(),
-                        productRequest.getBrandIds())
+                        productRequest.getCategoryIds())
         );
     }
 
@@ -51,8 +50,7 @@ public class ProductController extends AbstractBaseController {
         AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
         return responseUtil.successResponse(new ProductResponse(
                 productService.updateProduct(id, productRequest, authUser),
-                productRequest.getCategoryIds(),
-                productRequest.getBrandIds())
+                productRequest.getCategoryIds())
         );
     }
 

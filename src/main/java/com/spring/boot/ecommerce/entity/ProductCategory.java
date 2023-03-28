@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
@@ -18,7 +19,7 @@ import javax.persistence.*;
 @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "product_category")
-public class ProductCategory extends BaseEntity {
+public class ProductCategory extends BaseEntity implements Serializable {
     @Id
     @Column(name = "id", length = 64, nullable = false)
     private String id;

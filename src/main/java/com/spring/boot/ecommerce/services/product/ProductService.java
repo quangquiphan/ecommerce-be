@@ -4,7 +4,6 @@ import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.entity.Product;
 import com.spring.boot.ecommerce.model.request.product.ProductRequest;
 import com.spring.boot.ecommerce.model.response.product.GetProductResponse;
-import com.spring.boot.ecommerce.model.response.product.ProductResponse;
 import org.springframework.data.domain.Page;
 
 public interface ProductService {

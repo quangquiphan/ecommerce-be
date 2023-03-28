@@ -7,7 +7,9 @@ import com.spring.boot.ecommerce.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.joda.time.DateTime;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -25,9 +27,13 @@ public class GetProductResponse {
 
     private List<Category> categories;
 
-    private List<Brand> brands;
+    private String brandId;
 
-    public GetProductResponse(Product product, List<Category> categories, List<Brand> brands) {
+    private Date createdDate;
+
+    private Date updatedDate;
+
+    public GetProductResponse(Product product, List<Category> categories) {
         this.id = product.getId();
         this.productName = product.getProductName();
         this.description = product.getDescription();
@@ -37,6 +43,8 @@ public class GetProductResponse {
         this.status = product.getStatus();
         this.userId = product.getUserId();
         this.categories = categories;
-        this.brands = brands;
+        this.brandId = product.getBrandId();
+        this.createdDate = product.getCreatedDate();
+        this.updatedDate = product.getUpdatedDate();
     }
 }

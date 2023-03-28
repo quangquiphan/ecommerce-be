@@ -19,5 +19,5 @@ public class ProductRequest {
     private int quantity;
     private Status status;
     private List<String> categoryIds;
-    private List<String> brandIds;
+    private String brandId;
 }

@@ -13,8 +13,8 @@ public interface BrandRepository extends JpaRepository<Brand, String> {
     Brand getById(String id);
 
     @Query(value =
-            " SELECT new com.spring.boot.ecommerce.model.response.brand.ListBrandResponse(b, count (pb.productId))" +
-                    " FROM Brand b LEFT JOIN ProductBrand pb ON b.id = pb.brandId " +
+            " SELECT new com.spring.boot.ecommerce.model.response.brand.ListBrandResponse(b, count (p.id))" +
+                    " FROM Brand b LEFT JOIN Product p ON b.id = p.brandId " +
                     " GROUP BY b.id, b.brandName, b.status, b.userId"
     )
     Page<ListBrandResponse> getAllByIdExists(Pageable pageable);

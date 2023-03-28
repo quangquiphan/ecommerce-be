@@ -43,6 +43,9 @@ public class Product extends BaseEntity implements Serializable {
     @Column(name = "status")
     private Status status;
 
+    @Column(name = "brand_id")
+    private String brandId;
+
     @Column(name = "user_id")
     private String userId;
 }

@@ -17,34 +17,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ProductServiceImplement implements ProductService{
+public class ProductServiceImplement implements ProductService {
 
     final private CategoryRepository categoryRepository;
     final private BrandRepository brandRepository;
     final private ProductRepository productRepository;
     final private ProductCategoryRepository productCategoryRepository;
-    final private ProductBrandRepository productBrandRepository;
 
     public ProductServiceImplement(
             CategoryRepository categoryRepository,
             BrandRepository brandRepository, ProductRepository productRepository,
-            ProductCategoryRepository productCategoryRepository,
-            ProductBrandRepository productBrandRepository
+            ProductCategoryRepository productCategoryRepository
     ) {
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
-        this.productBrandRepository = productBrandRepository;
     }
 
     @Override
     public Product addProduct(ProductRequest request, AuthUser authUser) {
         Product product = new Product();
-        List<Brand> brands = new ArrayList<>();
-        List<Category> categories = new ArrayList<>();
-        List<ProductBrand> productBrands = new ArrayList<>();
         List<ProductCategory> productCategories = new ArrayList<>();
+
+        if (request.getProductName() == null || request.getProductName().isEmpty()) {
+            throw new ApplicationException(RestAPIStatus.BAD_PARAMS, "Product name not null");
+        }
 
         product.setId(UniqueID.getUUID());
         product.setProductName(request.getProductName());
@@ -62,22 +60,12 @@ public class ProductServiceImplement implements ProductService{
             productCategory.setProductId(product.getId());
             productCategory.setCategoryId(category.getId());
             productCategories.add(productCategory);
-            categories.add(category);
         });
 
-        request.getBrandIds().forEach((item) -> {
-            Brand brand = brandRepository.getById(item);
-            ProductBrand productBrand = new ProductBrand();
-            productBrand.setId(UniqueID.getUUID());
-            productBrand.setProductId(product.getId());
-            productBrand.setBrandId(brand.getId());
-            productBrands.add(productBrand);
-            brands.add(brand);
-        });
+        product.setBrandId(request.getBrandId());
 
         productRepository.save(product);
         productCategoryRepository.saveAll(productCategories);
-        productBrandRepository.saveAll(productBrands);
         return product;
     }
 
@@ -89,15 +77,8 @@ public class ProductServiceImplement implements ProductService{
             throw new ApplicationException(RestAPIStatus.NOT_FOUND);
         }
 
-        List<Brand> brands = new ArrayList<>();
-        List<Category> categories = new ArrayList<>();
-        List<ProductBrand> productBrands = new ArrayList<>();
-        List<ProductCategory> productCategories = new ArrayList<>();
-        List<ProductCategory> currentListCategory = productCategoryRepository.findAllByProductId(product.getId());
-        List<ProductBrand> currentListBrand = productBrandRepository.findAllByProductId(product.getId());
-
-        productCategoryRepository.deleteAll(currentListCategory);
-        productBrandRepository.deleteAll(currentListBrand);
+        List<ProductCategory> productCategories = productCategoryRepository.findAllByProductId(product.getId());
+        productCategoryRepository.deleteAll(productCategories);
 
         product.setProductName(request.getProductName());
         product.setDescription(request.getDescription());
@@ -114,22 +95,12 @@ public class ProductServiceImplement implements ProductService{
             productCategory.setProductId(product.getId());
             productCategory.setCategoryId(category.getId());
             productCategories.add(productCategory);
-            categories.add(category);
         });
 
-        request.getBrandIds().forEach((item) -> {
-            Brand brand = brandRepository.getById(item);
-            ProductBrand productBrand = new ProductBrand();
-            productBrand.setId(UniqueID.getUUID());
-            productBrand.setProductId(product.getId());
-            productBrand.setBrandId(brand.getId());
-            productBrands.add(productBrand);
-            brands.add(brand);
-        });
+        product.setBrandId(request.getBrandId());
 
         productRepository.save(product);
         productCategoryRepository.saveAll(productCategories);
-        productBrandRepository.saveAll(productBrands);
         return product;
     }
 
@@ -137,14 +108,13 @@ public class ProductServiceImplement implements ProductService{
     public GetProductResponse getProduct(String id) {
         Product product = productRepository.getById(id);
 
-        if(product == null) {
+        if (product == null) {
             throw new ApplicationException(RestAPIStatus.NOT_FOUND);
         }
 
-        List<Brand> brands = productBrandRepository.getAllByProductId(product.getId());
         List<Category> categories = productCategoryRepository.getAllByProductId(product.getId());
 
-        return new GetProductResponse(product, categories, brands);
+        return new GetProductResponse(product, categories);
     }
 
     @Override
@@ -164,10 +134,8 @@ public class ProductServiceImplement implements ProductService{
         if (product.getStatus().equals(Status.IN_ACTIVE)) {
 
             List<ProductCategory> currentListCategory = productCategoryRepository.findAllByProductId(product.getId());
-            List<ProductBrand> currentListBrand = productBrandRepository.findAllByProductId(product.getId());
 
             productCategoryRepository.deleteAll(currentListCategory);
-            productBrandRepository.deleteAll(currentListBrand);
         }
 
         product.setStatus(Status.IN_ACTIVE);
