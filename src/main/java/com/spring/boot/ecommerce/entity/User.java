@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spring.boot.ecommerce.common.BaseEntity;
 import com.spring.boot.ecommerce.common.enums.UserRole;
 import com.spring.boot.ecommerce.common.enums.Status;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -14,15 +16,16 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
-import java.io.Serializable;
 
 @Data
 @ToString
 @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends BaseEntity implements Serializable {
+public class User extends BaseEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false, length = 64)

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Data
 @Entity
@@ -20,7 +19,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "category")
-public class Category extends BaseEntity implements Serializable {
+public class Category extends BaseEntity {
     @Id
     @Column(name = "id", length = 64, nullable = false)
     private String id;

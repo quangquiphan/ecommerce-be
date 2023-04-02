@@ -48,7 +48,7 @@ public class UserServiceImplement implements UserService {
         user.setPasswordSalt(passwordSalt);
         user.setPasswordHash(setPasswordHash(passwordEncoder, signUpRequest.getPasswordHash(), passwordSalt));
         user.setStatus(Status.ACTIVE);
-        user.setUserRole(UserRole.CUSTOMER);
+        user.setUserRole(signUpRequest.getRole());
         userRepository.save(user);
         return user;
     }

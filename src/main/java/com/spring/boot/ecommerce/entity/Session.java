@@ -6,11 +6,9 @@ import com.spring.boot.ecommerce.common.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 @Data
@@ -21,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "session")
-public class Session extends BaseEntity implements Serializable {
+public class Session extends BaseEntity {
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private String id;
