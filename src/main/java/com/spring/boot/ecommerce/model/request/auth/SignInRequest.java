@@ -15,7 +15,7 @@ import javax.validation.constraints.NotBlank;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SignInRequest {
 
-    @JsonProperty(value = "username")
+    @JsonProperty(value = "email")
     @NotBlank(message = ParamError.FIELD_NAME)
     public String email;
 

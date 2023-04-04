@@ -44,7 +44,7 @@ public class UserServiceImplement implements UserService {
 
         User user = new User();
         user.setId(UniqueID.getUUID());
-        user.setUsername(signUpRequest.getEmail());
+        user.setEmail(signUpRequest.getEmail());
         user.setPasswordSalt(passwordSalt);
         user.setPasswordHash(setPasswordHash(passwordEncoder, signUpRequest.getPasswordHash(), passwordSalt));
         user.setStatus(Status.ACTIVE);
