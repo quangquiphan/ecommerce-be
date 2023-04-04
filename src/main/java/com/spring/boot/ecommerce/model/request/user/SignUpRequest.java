@@ -21,7 +21,7 @@ public class SignUpRequest {
 
     @NotBlank(message = ParamError.FIELD_NAME)
     @Size(message = ParamError.MAX_LENGTH)
-    private String username;
+    private String email;
 
     @NotBlank(message = ParamError.FIELD_NAME)
     private String passwordHash;

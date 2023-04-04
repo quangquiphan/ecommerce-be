@@ -34,7 +34,7 @@ public class SessionServiceImplement implements SessionService {
 
     @Override
     public Session signIn(SignInRequest signInRequest, PasswordEncoder passwordEncoder, Boolean isKeepLogin) {
-        User existUser = userRepository.getByUsernameAndStatus(signInRequest.getUsername(), Status.ACTIVE);
+        User existUser = userRepository.getByEmailAndStatus(signInRequest.getEmail(), Status.ACTIVE);
         boolean isValidPassword = checkPassword(
                 signInRequest.getPasswordHash().trim().concat(existUser.getPasswordSalt().trim()),
                 existUser.getPasswordHash(), passwordEncoder

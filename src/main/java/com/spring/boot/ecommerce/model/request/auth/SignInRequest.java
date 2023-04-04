@@ -17,7 +17,7 @@ public class SignInRequest {
 
     @JsonProperty(value = "username")
     @NotBlank(message = ParamError.FIELD_NAME)
-    public String username;
+    public String email;
 
     @JsonProperty(value = "password_hash")
     @NotBlank(message = ParamError.FIELD_NAME)

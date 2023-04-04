@@ -32,7 +32,7 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public User signUp(SignUpRequest signUpRequest, PasswordEncoder passwordEncoder) {
-        User existUser = userRepository.getByUsernameAndStatus(signUpRequest.getUsername(), Status.ACTIVE);
+        User existUser = userRepository.getByEmailAndStatus(signUpRequest.getEmail(), Status.ACTIVE);
         Validator.mustNull(existUser, RestAPIStatus.EXISTED, "User already existed");
         boolean isPassword = checkPassword(signUpRequest.getPasswordHash(), signUpRequest.getConfirmPassword());
 
@@ -44,7 +44,7 @@ public class UserServiceImplement implements UserService {
 
         User user = new User();
         user.setId(UniqueID.getUUID());
-        user.setUsername(signUpRequest.getUsername());
+        user.setUsername(signUpRequest.getEmail());
         user.setPasswordSalt(passwordSalt);
         user.setPasswordHash(setPasswordHash(passwordEncoder, signUpRequest.getPasswordHash(), passwordSalt));
         user.setStatus(Status.ACTIVE);
