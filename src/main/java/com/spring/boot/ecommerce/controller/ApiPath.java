@@ -24,10 +24,13 @@ public interface ApiPath {
     //    APIs Product
     String PRODUCT_APIs = BASE_API + "/product";
 
+    String PRODUCT_IMAGE_APIs = BASE_API + "/product-image";
+
     //    APIs Brand
     String BRAND_APIs = BASE_API + "/brand";
 
     //    APIs Order
     String ORDER_APIs = BASE_API + "/order";
 
+    String CART_APIs = BASE_API + "/cart";
 }

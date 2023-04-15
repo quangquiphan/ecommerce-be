@@ -1,6 +1,5 @@
 package com.spring.boot.ecommerce.services.user;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.common.enums.UserRole;
 import com.spring.boot.ecommerce.common.enums.Status;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
@@ -11,6 +10,8 @@ import com.spring.boot.ecommerce.common.utils.Validator;
 import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.request.user.SignUpRequest;
 import com.spring.boot.ecommerce.model.request.user.UpdateUserRequest;
+import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
+import com.spring.boot.ecommerce.repositories.CartRepository;
 import com.spring.boot.ecommerce.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +24,11 @@ import java.util.Objects;
 @Service
 public class UserServiceImplement implements UserService {
     final UserRepository userRepository;
+    final CartRepository cartRepository;
 
-    public UserServiceImplement(UserRepository userRepository) {
+    public UserServiceImplement(UserRepository userRepository, CartRepository cartRepository) {
         this.userRepository = userRepository;
+        this.cartRepository = cartRepository;
     }
 
     SimpleDateFormat dateFormat = new SimpleDateFormat();
@@ -54,7 +57,13 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public User findById(String id) {
+    public UserDetailResponse findById(String id) {
+        User user = userRepository.getById(id);
+        return new UserDetailResponse(user, cartRepository.findCartByUserId(id));
+    }
+
+    @Override
+    public User getById(String id) {
         return userRepository.getById(id);
     }
 
@@ -101,6 +110,7 @@ public class UserServiceImplement implements UserService {
 
         if (user.getStatus().equals(Status.IN_ACTIVE)) {
             userRepository.delete(user);
+            return;
         }
 
         user.setStatus(Status.IN_ACTIVE);

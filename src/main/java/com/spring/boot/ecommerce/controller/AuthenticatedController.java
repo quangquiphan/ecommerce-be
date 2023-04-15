@@ -10,6 +10,7 @@ import com.spring.boot.ecommerce.entity.Session;
 import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.response.auth.SignInResponse;
 import com.spring.boot.ecommerce.model.request.auth.SignInRequest;
+import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
 import com.spring.boot.ecommerce.services.session.SessionService;
 import com.spring.boot.ecommerce.services.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,7 +43,7 @@ public class AuthenticatedController extends AbstractBaseController {
             @RequestBody @Valid SignInRequest signInRequest
     ) {
         Session session = sessionService.signIn(signInRequest, passwordEncoder, signInRequest.isKeepLogin());
-        User user = userService.findById(session.getUserId());
+        UserDetailResponse user = userService.findById(session.getUserId());
         return responseUtil.successResponse(
                 new SignInResponse(
                         session.getId(),

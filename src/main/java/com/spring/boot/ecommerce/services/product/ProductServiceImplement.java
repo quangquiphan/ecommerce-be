@@ -136,6 +136,7 @@ public class ProductServiceImplement implements ProductService {
             List<ProductCategory> currentListCategory = productCategoryRepository.findAllByProductId(product.getId());
 
             productCategoryRepository.deleteAll(currentListCategory);
+            return;
         }
 
         product.setStatus(Status.IN_ACTIVE);

@@ -41,7 +41,7 @@ public class BrandServiceImplement implements BrandService{
 
         brand.setId(UniqueID.getUUID());
         brand.setBrandName(brandRequest.getBrandName());
-        brand.setStatus(Status.ACTIVE);
+        brand.setStatus(brandRequest.getStatus());
         brand.setUserId(authUser.getId());
 
         history.setId(UniqueID.getUUID());
@@ -112,7 +112,8 @@ public class BrandServiceImplement implements BrandService{
             history.setMessage(Message.UPDATE);
 
             historyRepository.save(history);
-            throw new ApplicationException(RestAPIStatus.BAD_REQUEST, "Brand name is not null");
+            brandRepository.delete(brand);
+            return;
         }
 
         brand.setStatus(Status.IN_ACTIVE);

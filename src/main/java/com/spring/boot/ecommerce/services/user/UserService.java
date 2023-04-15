@@ -4,13 +4,16 @@ import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.request.user.SignUpRequest;
 import com.spring.boot.ecommerce.model.request.user.UpdateUserRequest;
+import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public interface UserService {
     User signUp(SignUpRequest signUpRequest, PasswordEncoder passwordEncoder);
 
-    User findById(String id);
+    UserDetailResponse findById(String id);
+
+    User getById(String id);
 
     User updateProfileUser(String id, UpdateUserRequest userRequest);
 

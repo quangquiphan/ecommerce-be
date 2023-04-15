@@ -35,7 +35,7 @@ public class CategoryServiceImplement implements CategoryService{
 
         category.setId(UniqueID.getUUID());
         category.setCategoryName(categoryRequest.getCategoryName());
-        category.setStatus(Status.ACTIVE);
+        category.setStatus(categoryRequest.getStatus());
         category.setUserId(authUser.getId());
 
         categoryRepository.save(category);
@@ -84,7 +84,9 @@ public class CategoryServiceImplement implements CategoryService{
         }
 
         if (category.getStatus().equals(Status.IN_ACTIVE)) {
-            categoryRepository.delete(category);
+            System.out.println("1");
+            categoryRepository.deleteById(category.getId());
+            return;
         }
 
         category.setStatus(Status.IN_ACTIVE);

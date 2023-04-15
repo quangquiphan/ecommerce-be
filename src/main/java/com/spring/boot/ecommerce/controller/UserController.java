@@ -71,22 +71,11 @@ public class UserController extends AbstractBaseController {
     public ResponseEntity<RestAPIResponse> getProfileUser(
             @RequestParam String id
     ){
-        User user = userService.findById(id);
+        UserDetailResponse user = userService.findById(id);
         if (user == null) {
             throw new ApplicationException(RestAPIStatus.NOT_FOUND);
         }
-        return responseUtil.successResponse(
-                new UserDetailResponse(
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getUsername(),
-                        user.getPhoneNumber(),
-                        user.getEmail(),
-                        user.getCountry(),
-                        user.getStatus(),
-                        user.getUserRole()
-                )
-        );
+        return responseUtil.successResponse(user);
     }
 
     @AuthorizeValidator(UserRole.ADMIN)
