@@ -85,9 +85,7 @@ public class UserController extends AbstractBaseController {
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return responseUtil.successResponse(
-                new PagingResponse(userService.getAllUser(pageNumber, pageSize))
-        );
+        return responseUtil.successResponse(new PagingResponse(userService.getAllUser(pageNumber, pageSize)));
     }
 
     @AuthorizeValidator(UserRole.ADMIN)

@@ -12,24 +12,24 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @ToString
-@JsonInclude(JsonInclude.Include.USE_DEFAULTS)
-@EntityListeners(AuditingEntityListener.class)
 @Entity
-@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.USE_DEFAULTS)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends BaseEntity {
+@Table(name = "user")
+public class User extends BaseEntity implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false, length = 64)
     private String id;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password_hash")
     private String passwordHash;

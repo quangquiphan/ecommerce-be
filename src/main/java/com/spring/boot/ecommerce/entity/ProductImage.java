@@ -3,6 +3,7 @@ package com.spring.boot.ecommerce.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spring.boot.ecommerce.common.BaseEntity;
+import com.spring.boot.ecommerce.common.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,9 @@ public class ProductImage extends BaseEntity {
     @Column(name = "product_id", length = 64)
     private String productId;
 
-    @Column(name = "path")
+    @Column(name = "path", length = 255)
     private String path;
+
+    @Column(name = "user_id")
+    private String userId;
 }

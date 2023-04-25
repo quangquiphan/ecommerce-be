@@ -1,5 +1,6 @@
 package com.spring.boot.ecommerce.services.cart;
 
+import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.common.utils.UniqueID;
@@ -29,8 +30,8 @@ public class CartServiceImplement implements CartService{
     }
 
     @Override
-    public Cart addToCart(CartRequest cartRequest) {
-        User user = userRepository.getById(cartRequest.getUserId());
+    public Cart addToCart(CartRequest cartRequest, AuthUser authUser) {
+        User user = userRepository.getById(authUser.getId());
         Product product = productRepository.getById(cartRequest.getProductId());
         Cart item = cartRepository.getCartByProductId(cartRequest.getProductId());
 
@@ -49,7 +50,7 @@ public class CartServiceImplement implements CartService{
 
         Cart cart = new Cart();
         cart.setId(UniqueID.getUUID());
-        cart.setUserId(user.getId());
+        cart.setUserId(authUser.getId());
         cart.setProductId(product.getId());
         cart.setQuantity(cartRequest.getQuantity());
 
@@ -57,7 +58,7 @@ public class CartServiceImplement implements CartService{
     }
 
     @Override
-    public Cart updateCart(String id, CartRequest cartRequest) {
+    public Cart updateCart(String id, CartRequest cartRequest, AuthUser authUser) {
         Cart cart = cartRepository.getCartById(id);
 
         if (cart == null) {

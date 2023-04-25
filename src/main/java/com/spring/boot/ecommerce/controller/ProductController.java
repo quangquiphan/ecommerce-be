@@ -64,13 +64,8 @@ public class ProductController extends AbstractBaseController {
 
     @Operation(summary = "getAllProduct")
     @RequestMapping(path = ApiPath.ALL, method = RequestMethod.GET)
-    public ResponseEntity<RestAPIResponse> getAllProduct(
-            @RequestParam(defaultValue = "1") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
-        return responseUtil.successResponse(
-                new PagingResponse(productService.getAllProduct(pageNumber, pageSize))
-        );
+    public ResponseEntity<RestAPIResponse> getAllProduct() {
+        return responseUtil.successResponse(productService.getAllProduct());
     }
 
     @Operation(summary = "deleleProduct")

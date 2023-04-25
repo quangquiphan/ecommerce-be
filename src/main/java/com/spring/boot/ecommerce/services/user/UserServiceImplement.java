@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -88,7 +89,13 @@ public class UserServiceImplement implements UserService {
     @Override
     public Page<User> getAllUser(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
+        System.out.println(userRepository.findAll(pageRequest));
         return userRepository.findAll(pageRequest);
+    }
+
+    @Override
+    public List<User> getListUser() {
+        return userRepository.findAll();
     }
 
     @Override

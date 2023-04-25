@@ -8,7 +8,9 @@ import com.spring.boot.ecommerce.common.utils.UniqueID;
 import com.spring.boot.ecommerce.entity.*;
 import com.spring.boot.ecommerce.model.request.product.ProductRequest;
 import com.spring.boot.ecommerce.model.response.product.GetProductResponse;
+import com.spring.boot.ecommerce.model.response.product.ProductImageResponse;
 import com.spring.boot.ecommerce.repositories.*;
+import com.spring.boot.ecommerce.services.ProductImage.ProductImageService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -23,16 +25,18 @@ public class ProductServiceImplement implements ProductService {
     final private BrandRepository brandRepository;
     final private ProductRepository productRepository;
     final private ProductCategoryRepository productCategoryRepository;
+    final ProductImageService productImageService;
 
     public ProductServiceImplement(
             CategoryRepository categoryRepository,
             BrandRepository brandRepository, ProductRepository productRepository,
-            ProductCategoryRepository productCategoryRepository
-    ) {
+            ProductCategoryRepository productCategoryRepository,
+            ProductImageService productImageService) {
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
+        this.productImageService = productImageService;
     }
 
     @Override
@@ -76,9 +80,8 @@ public class ProductServiceImplement implements ProductService {
         if (product == null) {
             throw new ApplicationException(RestAPIStatus.NOT_FOUND);
         }
-
-        List<ProductCategory> productCategories = productCategoryRepository.findAllByProductId(product.getId());
-        productCategoryRepository.deleteAll(productCategories);
+        List<ProductCategory> productCategories = new ArrayList<>();
+        List<ProductCategory> currentProductCategories = productCategoryRepository.findAllByProductId(product.getId());
 
         product.setProductName(request.getProductName());
         product.setDescription(request.getDescription());
@@ -88,20 +91,37 @@ public class ProductServiceImplement implements ProductService {
         product.setUserId(authUser.getId());
         product.setStatus(request.getStatus());
 
-        request.getCategoryIds().forEach((item) -> {
-            Category category = categoryRepository.getById(item);
-            ProductCategory productCategory = new ProductCategory();
-            productCategory.setId(UniqueID.getUUID());
-            productCategory.setProductId(product.getId());
-            productCategory.setCategoryId(category.getId());
-            productCategories.add(productCategory);
-        });
+        if (!request.getCategoryIds().isEmpty() || request.getCategoryIds() != null) {
+            List<String> categoryIds = request.getCategoryIds();
+            for (int i = 0; i < categoryIds.size(); i++) {
+                for (int j = 0; j < currentProductCategories.size(); j++) {
+                    if (categoryIds.get(i).toString()
+                            .equals(currentProductCategories.get(j).getCategoryId().toString())) {
+                        productCategories.add(currentProductCategories.get(j));
+                        categoryIds.remove(i);
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 0; i < categoryIds.size(); i++) {
+                ProductCategory productCategory = new ProductCategory();
+
+                Category category = categoryRepository.getById(categoryIds.get(i).toString());
+
+                productCategory.setId(UniqueID.getUUID());
+                productCategory.setProductId(product.getId());
+                productCategory.setCategoryId(category.getId());
+
+                productCategories.add(productCategory);
+            }
+        }
 
         product.setBrandId(request.getBrandId());
 
-        productRepository.save(product);
+        productCategoryRepository.deleteAll(currentProductCategories);
         productCategoryRepository.saveAll(productCategories);
-        return product;
+        return productRepository.save(product);
     }
 
     @Override
@@ -113,14 +133,24 @@ public class ProductServiceImplement implements ProductService {
         }
 
         List<Category> categories = productCategoryRepository.getAllByProductId(product.getId());
+        List<ProductImageResponse> images = productImageService.loadImage(id);
 
-        return new GetProductResponse(product, categories);
+        return new GetProductResponse(product, categories, images);
     }
 
     @Override
-    public Page<Product> getAllProduct(int pageNumber, int pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
-        return productRepository.findAll(pageRequest);
+    public List<GetProductResponse> getAllProduct() {
+        List<GetProductResponse> productResponses = new ArrayList<>();
+        List<Product> products = productRepository.findAll();
+
+        for (int i = 0; i < products.size(); i++) {
+            List<ProductImageResponse> images = productImageService.loadImage(products.get(i).getId());
+            List<Category> categories = productCategoryRepository.getAllByProductId(products.get(i).getId());
+            GetProductResponse productResponse = new GetProductResponse(products.get(i), categories, images);
+            productResponses.add(productResponse);
+        }
+
+        return productResponses;
     }
 
     @Override
@@ -136,6 +166,7 @@ public class ProductServiceImplement implements ProductService {
             List<ProductCategory> currentListCategory = productCategoryRepository.findAllByProductId(product.getId());
 
             productCategoryRepository.deleteAll(currentListCategory);
+            productImageService.deleteAllByProductId(id);
             return;
         }
 

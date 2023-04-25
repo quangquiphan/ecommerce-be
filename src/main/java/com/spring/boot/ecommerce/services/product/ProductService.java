@@ -6,6 +6,8 @@ import com.spring.boot.ecommerce.model.request.product.ProductRequest;
 import com.spring.boot.ecommerce.model.response.product.GetProductResponse;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface ProductService {
     Product addProduct(ProductRequest request, AuthUser authUser);
 
@@ -13,7 +15,7 @@ public interface ProductService {
 
     GetProductResponse getProduct(String id);
 
-    Page<Product> getAllProduct(int pageNumber, int pageSize);
+    List<GetProductResponse> getAllProduct();
 
     void delete(String id, AuthUser authUser);
 }

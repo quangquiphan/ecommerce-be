@@ -1,11 +1,17 @@
 package com.spring.boot.ecommerce.controller;
 
+import com.spring.boot.ecommerce.auth.AuthUser;
+import com.spring.boot.ecommerce.auth.AuthorizeValidator;
 import com.spring.boot.ecommerce.common.AbstractBaseController;
+import com.spring.boot.ecommerce.common.enums.UserRole;
+import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.model.request.cart.CartRequest;
 import com.spring.boot.ecommerce.services.cart.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(ApiPath.CART_APIs)
@@ -18,21 +24,28 @@ public class CartController extends AbstractBaseController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
+    @AuthorizeValidator({UserRole.ADMIN, UserRole.CUSTOMER})
     public ResponseEntity<RestAPIResponse> createCart(
-            @RequestBody CartRequest cart
+            @RequestBody CartRequest cart,
+            HttpServletRequest request
             ) {
-        return responseUtil.successResponse(cartService.addToCart(cart));
+        AuthUser auth = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
+        return responseUtil.successResponse(cartService.addToCart(cart, auth));
     }
 
     @RequestMapping(method = RequestMethod.PUT)
+    @AuthorizeValidator({UserRole.ADMIN, UserRole.CUSTOMER})
     public ResponseEntity<RestAPIResponse> updateCart(
             @PathVariable String id,
-            @RequestBody CartRequest cart
+            @RequestBody CartRequest cart,
+            HttpServletRequest request
     ) {
-        return responseUtil.successResponse(cartService.updateCart(id, cart));
+        AuthUser auth = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
+        return responseUtil.successResponse(cartService.updateCart(id, cart, auth));
     }
 
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.DELETE)
+    @AuthorizeValidator({UserRole.ADMIN, UserRole.CUSTOMER})
     public ResponseEntity<RestAPIResponse> deleteItem(
             @PathVariable String id
     ) {
@@ -41,6 +54,7 @@ public class CartController extends AbstractBaseController {
     }
 
     @RequestMapping(path = ApiPath.ALL + ApiPath.ID, method = RequestMethod.DELETE)
+    @AuthorizeValidator({UserRole.ADMIN, UserRole.CUSTOMER})
     public ResponseEntity<RestAPIResponse> deleteAll(
             @PathVariable String id
     ) {

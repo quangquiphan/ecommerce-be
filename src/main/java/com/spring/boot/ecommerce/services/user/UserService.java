@@ -8,6 +8,8 @@ import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
+
 public interface UserService {
     User signUp(SignUpRequest signUpRequest, PasswordEncoder passwordEncoder);
 
@@ -18,6 +20,8 @@ public interface UserService {
     User updateProfileUser(String id, UpdateUserRequest userRequest);
 
     Page<User> getAllUser(int pageNumber, int pageSize);
+
+    List<User> getListUser();
 
     void save(User user);
 

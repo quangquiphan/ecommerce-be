@@ -14,7 +14,7 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
 
     List<ProductCategory> findAllByProductId(String productId);
 
-    @Query(value = "SELECT c FROM ProductCategory pc, Category c " +
+    @Query(value = "SELECT DISTINCT c FROM ProductCategory pc, Category c " +
                    "WHERE pc.categoryId = c.id AND pc.productId = :productId ")
     List<Category> getAllByProductId(@Param("productId") String productId);
 }
