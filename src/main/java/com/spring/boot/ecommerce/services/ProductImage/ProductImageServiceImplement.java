@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductImageServiceImplement implements ProductImageService{
@@ -45,7 +48,7 @@ public class ProductImageServiceImplement implements ProductImageService{
         }
 
         // File name
-        String name = multipartFile.getOriginalFilename();
+        String name = new Date().getTime() + "." + getFileExtension(multipartFile.getOriginalFilename());
 
         // Full path
         String filePath = path + name;
@@ -106,23 +109,25 @@ public class ProductImageServiceImplement implements ProductImageService{
     @Override
     public List<ProductImageResponse> loadImage(String id) {
         List<ProductImageResponse> images = new ArrayList<>();
-        try {
-            List<ProductImage> productImages = productImageRepository.getAllByProductId(id);
+
+            List<ProductImageResponse> productImages = productImageRepository.getAllByProductId(id).stream().map(
+                    dbFile -> {
+                        String file = ServletUriComponentsBuilder
+                                .fromCurrentContextPath()
+                                .path("/images/")
+                                .path(dbFile.getPath())
+                                .toUriString();
+
+                        return new ProductImageResponse(dbFile.getId(), file, dbFile.getPath(), dbFile.getUserId());
+                    }
+            ).collect(Collectors.toList());
             
             for (int i = 0; i < productImages.size(); i++) {
-                Path file = root.resolve(productImages.get(i).getPath());
-                Resource resource = new UrlResource(file.toUri());
-
                 ProductImageResponse image =
-                        new ProductImageResponse(resource.getURL().toString(), productImages.get(i));
+                        new ProductImageResponse(productImages.get(i).getUrl(), productImages.get(i));
 
                 images.add(image);
             }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         return images;
     }
 
@@ -137,10 +142,20 @@ public class ProductImageServiceImplement implements ProductImageService{
     @Override
     public String delete(String id) {
         ProductImage image = productImageRepository.getById(id);
+
+        if (image == null) {
+            throw new ApplicationException(RestAPIStatus.NOT_FOUND);
+        }
+
         productImageRepository.delete(image);
 
         return "Delete successfully";
     }
 
+    private String getFileExtension(String file) {
+        if (file == null) return null;
 
+        String[] fileName = file.split("\\.");
+        return fileName[fileName.length - 1];
+    }
 }

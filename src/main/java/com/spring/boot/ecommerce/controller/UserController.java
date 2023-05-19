@@ -53,23 +53,14 @@ public class UserController extends AbstractBaseController {
             throw new ApplicationException(RestAPIStatus.NOT_FOUND);
         }
         return responseUtil.successResponse(
-                new UserDetailResponse(
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getUsername(),
-                        user.getPhoneNumber(),
-                        user.getEmail(),
-                        user.getCountry(),
-                        user.getStatus(),
-                        user.getUserRole()
-                )
+                new UserDetailResponse(user)
         );
     }
 
     @Operation(summary = "getProfileUser")
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.GET)
     public ResponseEntity<RestAPIResponse> getProfileUser(
-            @RequestParam String id
+            @PathVariable String id
     ){
         UserDetailResponse user = userService.findById(id);
         if (user == null) {

@@ -7,10 +7,12 @@ import com.spring.boot.ecommerce.config.jwt.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -24,6 +26,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    final Environment environment;
+
+    public WebMvcConfig(Environment environment) {
+        this.environment = environment;
+    }
 
 
     @Override
@@ -60,4 +68,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         return messageConverter;
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        WebMvcConfigurer.super.addResourceHandlers(registry);
+
+        String locate = environment.getProperty("app.file.storage.mapping");
+
+        registry.addResourceHandler("/images/**").addResourceLocations(locate);
+    }
 }

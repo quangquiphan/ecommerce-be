@@ -56,6 +56,9 @@ public class User extends BaseEntity implements Serializable {
     @Column(name = "country")
     private String country;
 
+    @Column(name = "address")
+    private String address;
+
     @Column(name = "status")
     private Status status;
 

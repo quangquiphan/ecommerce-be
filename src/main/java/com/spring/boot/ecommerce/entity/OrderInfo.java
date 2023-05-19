@@ -3,6 +3,7 @@ package com.spring.boot.ecommerce.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spring.boot.ecommerce.common.BaseEntity;
+import com.spring.boot.ecommerce.common.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,4 +35,7 @@ public class OrderInfo extends BaseEntity {
 
     @Column(name = "total")
     private double total;
+
+    @Column(name = "status")
+    private Status status;
 }

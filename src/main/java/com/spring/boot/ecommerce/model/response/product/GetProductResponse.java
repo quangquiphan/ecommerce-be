@@ -38,13 +38,15 @@ public class GetProductResponse {
 
     private String brandId;
 
+    private String brandName;
+
     private List<Category> categories;
 
     private Date createdDate;
 
     private Date updatedDate;
 
-    public GetProductResponse(Product product, List<Category> categories, List<ProductImageResponse> images) {
+    public GetProductResponse(Product product, List<Category> categories, List<ProductImageResponse> images, Brand brand) {
         this.id = product.getId();
         this.productName = product.getProductName();
         this.images = images;
@@ -56,6 +58,7 @@ public class GetProductResponse {
         this.userId = product.getUserId();
         this.categories = categories;
         this.brandId = product.getBrandId();
+        this.brandName = brand.getBrandName();
         this.createdDate = product.getCreatedDate();
         this.updatedDate = product.getUpdatedDate();
     }

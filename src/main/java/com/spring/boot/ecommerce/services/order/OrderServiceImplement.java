@@ -1,6 +1,7 @@
 package com.spring.boot.ecommerce.services.order;
 
 import com.spring.boot.ecommerce.auth.AuthUser;
+import com.spring.boot.ecommerce.common.enums.Status;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.common.utils.UniqueID;
@@ -43,35 +44,41 @@ public class OrderServiceImplement implements OrderService {
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest, AuthUser authUser) {
         //        Order
+        double total = 0;
+
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setId(UniqueID.getUUID());
         orderInfo.setCustomerId(authUser.getId());
         orderInfo.setPhoneNumber(orderRequest.getPhoneNumber());
         orderInfo.setAddressReceive(orderRequest.getAddressReceive());
-        orderInfo.setTotal(orderRequest.getTotal());
-
-        orderRepository.save(orderInfo);
         //        Order Detail
         List<Product> products = productRepository.findAll();
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
         List<OrderProduct> orderProducts = new ArrayList<>();
 
-        orderRequest.getOrderDetail().forEach((item) -> {
+        for (int i = 0; i < orderRequest.getOrderDetail().size(); i++) {
             OrderProduct orderProduct = new OrderProduct();
             orderProduct.setId(UniqueID.getUUID());
             orderProduct.setOrderId(orderInfo.getId());
-            orderProduct.setProductId(item.getProductId());
-            orderProduct.setQuantity(item.getQuantity());
+            orderProduct.setProductId(orderRequest.getOrderDetail().get(i).getProductId());
+            orderProduct.setQuantity(orderRequest.getOrderDetail().get(i).getQuantity());
 
-            orderProducts.add(orderProduct);
-
-            products.forEach((product) -> {
-                if (item.getProductId().equals(product.getId())){
-                    orderDetailResponses.add(new OrderDetailResponse(product, orderProduct));
+            double totalSub = 0;
+            for (int j = 0; j < products.size(); j++) {
+                if (products.get(j).getId().equals(orderRequest.getOrderDetail().get(i).getProductId())) {
+                    totalSub = calcTotal(products.get(j).getPrice(), products.get(j).getDiscount(),
+                            orderRequest.getOrderDetail().get(i).getQuantity());
                 }
-            });
-        });
+            }
 
+            total += totalSub;
+            orderProducts.add(orderProduct);
+        }
+
+        orderInfo.setTotal(total);
+        orderInfo.setStatus(Status.PENDING);
+
+        orderRepository.save(orderInfo);
         orderDetailRepository.saveAll(orderProducts);
         return new OrderResponse(authUser, orderInfo, orderDetailResponses);
     }
@@ -84,36 +91,72 @@ public class OrderServiceImplement implements OrderService {
         if (orderInfo == null) {
             throw new ApplicationException(RestAPIStatus.NOT_FOUND);
         }
+
+        double total = 0;
+
         orderDetailRepository.deleteAllByOrderId(orderInfo.getId());
 
         orderInfo.setCustomerId(authUser.getId());
         orderInfo.setPhoneNumber(orderRequest.getPhoneNumber());
         orderInfo.setAddressReceive(orderRequest.getAddressReceive());
-        orderInfo.setTotal(orderRequest.getTotal());
-
-        orderRepository.save(orderInfo);
 
         //        Order Detail
         List<Product> products = productRepository.findAll();
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
         List<OrderProduct> orderProducts = new ArrayList<>();
 
-        orderRequest.getOrderDetail().forEach((item) -> {
-            OrderProduct orderProduct = new OrderProduct();
-            orderProduct.setId(UniqueID.getUUID());
-            orderProduct.setOrderId(orderInfo.getId());
-            orderProduct.setProductId(item.getProductId());
-            orderProduct.setQuantity(item.getQuantity());
+        for (int i = 0; i < orderRequest.getOrderDetail().size(); i++) {
+            if (orderRequest.getOrderDetail().get(i).getStatus().equals(Status.IN_ACTIVE) &&
+                    (!orderRequest.getOrderDetail().get(i).getId().isEmpty() ||
+                            orderRequest.getOrderDetail().get(i).getId() != null)) {
+                OrderProduct orderProduct = orderDetailRepository.getById(orderRequest.getOrderDetail().get(i).getProductId());
+                orderDetailRepository.delete(orderProduct);
+                break;
+            }
 
-            orderProducts.add(orderProduct);
+            double totalSub = 0;
+            if ((orderRequest.getOrderDetail().get(i).getId().isEmpty() ||
+                    orderRequest.getOrderDetail().get(i).getId() == null) &&
+                    orderRequest.getOrderDetail().get(i).getStatus().equals(Status.IN_ACTIVE))  {
+                break;
+            }
 
-            products.forEach((product) -> {
-                if (item.getProductId().equals(product.getId())){
-                    orderDetailResponses.add(new OrderDetailResponse(product, orderProduct));
+            if ((orderRequest.getOrderDetail().get(i).getId().isEmpty() ||
+                    orderRequest.getOrderDetail().get(i).getId() == null)) {
+                OrderProduct orderProduct = new OrderProduct();
+                orderProduct.setId(UniqueID.getUUID());
+                orderProduct.setOrderId(orderInfo.getId());
+                orderProduct.setProductId(orderRequest.getOrderDetail().get(i).getProductId());
+                orderProduct.setQuantity(orderRequest.getOrderDetail().get(i).getQuantity());
+
+                for (int j = 0; j < products.size(); j++) {
+                    if (products.get(j).equals(orderRequest.getOrderDetail().get(i))) {
+                        totalSub = calcTotal(products.get(j).getPrice(), products.get(j).getDiscount(),
+                                orderRequest.getOrderDetail().get(i).getQuantity());
+                    }
                 }
-            });
-        });
 
+                total += totalSub;
+                orderProducts.add(orderProduct);
+                break;
+            }
+
+            OrderProduct orderProduct = orderDetailRepository.getById(orderRequest.getOrderDetail().get(i).getId());
+            orderProduct.setQuantity(orderRequest.getOrderDetail().get(i).getQuantity());
+
+            for (int j = 0; j < products.size(); j++) {
+                if (products.get(j).equals(orderRequest.getOrderDetail().get(i))) {
+                    totalSub = calcTotal(products.get(j).getPrice(), products.get(j).getDiscount(),
+                            orderRequest.getOrderDetail().get(i).getQuantity());
+                }
+            }
+
+            total += totalSub;
+            orderProducts.add(orderProduct);
+        }
+        orderInfo.setTotal(total);
+
+        orderRepository.save(orderInfo);
         orderDetailRepository.saveAll(orderProducts);
         return new OrderResponse(authUser, orderInfo, orderDetailResponses);
     }
@@ -149,5 +192,9 @@ public class OrderServiceImplement implements OrderService {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
 
         return orderRepository.getAllByIdExists(pageRequest);
+    }
+
+    private double calcTotal(double price, double discount, int quantity) {
+        return (price - discount) * quantity;
     }
 }

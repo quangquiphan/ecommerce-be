@@ -32,4 +32,6 @@ public class UpdateUserRequest {
     private String email;
 
     private String country;
+
+    private String address;
 }

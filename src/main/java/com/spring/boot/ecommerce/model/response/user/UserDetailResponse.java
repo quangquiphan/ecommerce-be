@@ -19,6 +19,7 @@ public class UserDetailResponse {
     private String phoneNumber;
     private String email;
     private String country;
+    private String address;
     private Status status;
     private UserRole userRole;
     private Date createdDate;
@@ -26,25 +27,19 @@ public class UserDetailResponse {
     private List<CartResponse> cartItems;
 
     public UserDetailResponse(
-            String firstName,
-            String lastName,
-            String username,
-            String phoneNumber,
-            String email,
-            String country,
-            Status status,
-            UserRole userRole
+            User user
     ) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.username = user.getUsername();
         this.avatarName = getAvatarName(firstName, lastName);
         this.fullName = getFullName(firstName, lastName);
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.country = country;
-        this.status = status;
-        this.userRole = userRole;
+        this.phoneNumber = user.getPhoneNumber();
+        this.email = user.getEmail();
+        this.country = user.getCountry();
+        this.address = user.getAddress();
+        this.status = user.getStatus();
+        this.userRole = user.getUserRole();
     }
 
     public UserDetailResponse(
@@ -59,6 +54,7 @@ public class UserDetailResponse {
         this.phoneNumber = user.getPhoneNumber();
         this.email = user.getEmail();
         this.country = user.getCountry();
+        this.address = user.getAddress();
         this.status = user.getStatus();
         this.userRole = user.getUserRole();
         this.createdDate = user.getCreatedDate();

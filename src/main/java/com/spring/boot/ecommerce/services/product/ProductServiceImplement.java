@@ -135,7 +135,9 @@ public class ProductServiceImplement implements ProductService {
         List<Category> categories = productCategoryRepository.getAllByProductId(product.getId());
         List<ProductImageResponse> images = productImageService.loadImage(id);
 
-        return new GetProductResponse(product, categories, images);
+        Brand brand = brandRepository.getById(product.getBrandId());
+
+        return new GetProductResponse(product, categories, images, brand);
     }
 
     @Override
@@ -146,7 +148,10 @@ public class ProductServiceImplement implements ProductService {
         for (int i = 0; i < products.size(); i++) {
             List<ProductImageResponse> images = productImageService.loadImage(products.get(i).getId());
             List<Category> categories = productCategoryRepository.getAllByProductId(products.get(i).getId());
-            GetProductResponse productResponse = new GetProductResponse(products.get(i), categories, images);
+
+            Brand brand = brandRepository.getById(products.get(i).getBrandId());
+
+            GetProductResponse productResponse = new GetProductResponse(products.get(i), categories, images, brand);
             productResponses.add(productResponse);
         }
 

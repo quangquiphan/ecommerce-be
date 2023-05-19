@@ -33,4 +33,6 @@ public interface ApiPath {
     String ORDER_APIs = BASE_API + "/order";
 
     String CART_APIs = BASE_API + "/cart";
+
+    String DASHBOARD_APIs = BASE_API + "/dashboard";
 }

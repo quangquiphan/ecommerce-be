@@ -81,6 +81,7 @@ public class UserServiceImplement implements UserService {
         user.setPhoneNumber(userRequest.getPhoneNumber());
         user.setEmail(userRequest.getEmail());
         user.setCountry(userRequest.getCountry());
+        user.setAddress(userRequest.getAddress());
 
         userRepository.save(user);
         return user;

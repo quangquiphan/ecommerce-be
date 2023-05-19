@@ -46,14 +46,11 @@ public class ProductImageController extends AbstractBaseController {
         }
     }
 
-    @Operation(summary = "updateImage")
+    @Operation(summary = "deleteImage")
     @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<RestAPIResponse> updateImage(
-            @PathVariable(name = "id") String id,
-            @RequestPart(required = true) MultipartFile file,
-            HttpServletRequest request
-    ) throws IOException {
-        AuthUser user = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
-        return responseUtil.successResponse(productImageService.uploadImage(path, id, file, user.getId()));
+    public ResponseEntity<RestAPIResponse> deleteImage(
+            @PathVariable(name = "id") String id
+    ) {
+        return responseUtil.successResponse(productImageService.delete(id));
     }
 }
