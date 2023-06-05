@@ -29,7 +29,4 @@ public class Brand extends BaseEntity {
 
     @Column(name = "status")
     private Status status;
-
-    @Column(name = "user_id")
-    private String userId;
 }

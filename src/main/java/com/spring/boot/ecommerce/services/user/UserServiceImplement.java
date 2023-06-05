@@ -3,15 +3,15 @@ package com.spring.boot.ecommerce.services.user;
 import com.spring.boot.ecommerce.common.enums.UserRole;
 import com.spring.boot.ecommerce.common.enums.Status;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
-import com.spring.boot.ecommerce.common.utils.AppUtil;
-import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
-import com.spring.boot.ecommerce.common.utils.UniqueID;
-import com.spring.boot.ecommerce.common.utils.Validator;
+import com.spring.boot.ecommerce.common.utils.*;
+import com.spring.boot.ecommerce.config.jwt.JwtTokenUtil;
+import com.spring.boot.ecommerce.entity.Session;
 import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.request.user.SignUpRequest;
 import com.spring.boot.ecommerce.model.request.user.UpdateUserRequest;
 import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
 import com.spring.boot.ecommerce.repositories.CartRepository;
+import com.spring.boot.ecommerce.repositories.SessionRepository;
 import com.spring.boot.ecommerce.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,16 +27,20 @@ import java.util.Objects;
 public class UserServiceImplement implements UserService {
     final UserRepository userRepository;
     final CartRepository cartRepository;
+    final JwtTokenUtil jwtTokenUtil;
+    final SessionRepository sessionRepository;
 
-    public UserServiceImplement(UserRepository userRepository, CartRepository cartRepository) {
+    public UserServiceImplement(UserRepository userRepository, CartRepository cartRepository, JwtTokenUtil jwtTokenUtil, SessionRepository sessionRepository) {
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.sessionRepository = sessionRepository;
     }
 
     SimpleDateFormat dateFormat = new SimpleDateFormat();
 
     @Override
-    public User signUp(SignUpRequest signUpRequest, PasswordEncoder passwordEncoder) {
+    public Session signUp(SignUpRequest signUpRequest, PasswordEncoder passwordEncoder) {
         User existUser = userRepository.getByEmailAndStatus(signUpRequest.getEmail(), Status.ACTIVE);
         Validator.mustNull(existUser, RestAPIStatus.EXISTED, "User already existed");
         boolean isPassword = checkPassword(signUpRequest.getPasswordHash(), signUpRequest.getConfirmPassword());
@@ -54,18 +59,20 @@ public class UserServiceImplement implements UserService {
         user.setStatus(Status.ACTIVE);
         user.setUserRole(signUpRequest.getRole());
         userRepository.save(user);
-        return user;
+
+        Session session = new Session();
+        session.setAccessToken(jwtTokenUtil.generateAccessToken(user));
+        session.setUserId(existUser.getId());
+        session.setCreatedDate(DateUtil.convertToUTC(new Date()));
+        session.setExpiryDate(DateUtil.addHoursToJavaUtilDate(new Date(), 24));
+
+        return sessionRepository.save(session);
     }
 
     @Override
     public UserDetailResponse findById(String id) {
         User user = userRepository.getById(id);
         return new UserDetailResponse(user, cartRepository.findCartByUserId(id));
-    }
-
-    @Override
-    public User getById(String id) {
-        return userRepository.getById(id);
     }
 
     @Override
@@ -80,7 +87,6 @@ public class UserServiceImplement implements UserService {
         user.setLastName(userRequest.getLastName());
         user.setPhoneNumber(userRequest.getPhoneNumber());
         user.setEmail(userRequest.getEmail());
-        user.setCountry(userRequest.getCountry());
         user.setAddress(userRequest.getAddress());
 
         userRepository.save(user);

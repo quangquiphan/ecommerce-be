@@ -1,10 +1,8 @@
 package com.spring.boot.ecommerce.controller;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.auth.AuthorizeValidator;
 import com.spring.boot.ecommerce.common.AbstractBaseController;
 import com.spring.boot.ecommerce.common.enums.UserRole;
-import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.entity.Brand;
 import com.spring.boot.ecommerce.model.request.brand.BrandRequest;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping(ApiPath.BRAND_APIs)
@@ -32,11 +29,9 @@ public class BrandController extends AbstractBaseController {
     @AuthorizeValidator(UserRole.ADMIN)
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<RestAPIResponse> addBrand(
-            @RequestBody BrandRequest brandRequest,
-            HttpServletRequest servletRequest
+            @RequestBody BrandRequest brandRequest
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
-        Brand brand = brandService.addBrand(brandRequest, authUser);
+        Brand brand = brandService.addBrand(brandRequest);
         return responseUtil.successResponse(
                 new BrandResponse(brand)
         );
@@ -47,11 +42,9 @@ public class BrandController extends AbstractBaseController {
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.PUT)
     public ResponseEntity<RestAPIResponse> updateBrand(
             @PathVariable String id,
-            @RequestBody BrandRequest brandRequest,
-            HttpServletRequest servletRequest
+            @RequestBody BrandRequest brandRequest
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
-        Brand brand = brandService.updateBrand(id, brandRequest, authUser);
+        Brand brand = brandService.updateBrand(id, brandRequest);
         return responseUtil.successResponse(
                 new BrandResponse(brand)
         );
@@ -79,14 +72,12 @@ public class BrandController extends AbstractBaseController {
         );
     }
 
-    @Operation(summary = "deleleBrand")
+    @Operation(summary = "deleteBrand")
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.DELETE)
     public ResponseEntity<RestAPIResponse> deleteBrand(
-            @PathVariable String id,
-            HttpServletRequest request
+            @PathVariable String id
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
-        brandService.deleteBrand(id, authUser);
+        brandService.deleteBrand(id);
         return responseUtil.successResponse("Delete successfully!");
     }
 }

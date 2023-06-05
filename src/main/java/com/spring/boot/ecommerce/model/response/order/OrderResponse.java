@@ -1,6 +1,7 @@
 package com.spring.boot.ecommerce.model.response.order;
 
 import com.spring.boot.ecommerce.auth.AuthUser;
+import com.spring.boot.ecommerce.common.enums.OrderStatus;
 import com.spring.boot.ecommerce.entity.OrderInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class OrderResponse {
     private String phoneNumber;
     private String email;
     private String country;
+    private OrderStatus status;
     private String addressReceive;
     private String phoneReceive;
     private double total;
@@ -34,7 +36,7 @@ public class OrderResponse {
         this.lastName = user.getLastName();
         this.phoneNumber = user.getPhoneNumber();
         this.email = user.getEmail();
-        this.country = user.getCountry();
+        this.status = orderInfo.getStatus();
         this.addressReceive = orderInfo.getAddressReceive();
         this.phoneReceive = orderInfo.getPhoneNumber();
         this.total = orderInfo.getTotal();

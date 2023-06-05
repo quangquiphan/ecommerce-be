@@ -15,13 +15,11 @@ public class ListBrandResponse {
     private String brandName;
     private Status status;
     private long quantity;
-    private String userId;
 
     public ListBrandResponse(Brand brand, long quantity){
         this.id = brand.getId();
         this.brandName = brand.getBrandName();
         this.status = brand.getStatus();
         this.quantity = quantity;
-        this.userId = brand.getUserId();
     }
 }

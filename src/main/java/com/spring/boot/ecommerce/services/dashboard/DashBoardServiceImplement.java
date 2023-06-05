@@ -1,6 +1,5 @@
 package com.spring.boot.ecommerce.services.dashboard;
 
-import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.response.dashboard.Chart;
 import com.spring.boot.ecommerce.model.response.dashboard.Dashboard;
 import com.spring.boot.ecommerce.repositories.OrderRepository;

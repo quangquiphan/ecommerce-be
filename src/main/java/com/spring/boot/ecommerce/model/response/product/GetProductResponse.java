@@ -4,13 +4,10 @@ import com.spring.boot.ecommerce.common.enums.Status;
 import com.spring.boot.ecommerce.entity.Brand;
 import com.spring.boot.ecommerce.entity.Category;
 import com.spring.boot.ecommerce.entity.Product;
-import com.spring.boot.ecommerce.entity.ProductImage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
 
-import java.awt.*;
 import java.util.Date;
 import java.util.List;
 
@@ -34,8 +31,6 @@ public class GetProductResponse {
 
     private Status status;
 
-    private String userId;
-
     private String brandId;
 
     private String brandName;
@@ -55,7 +50,6 @@ public class GetProductResponse {
         this.discount = product.getDiscount();
         this.quantity = product.getQuantity();
         this.status = product.getStatus();
-        this.userId = product.getUserId();
         this.categories = categories;
         this.brandId = product.getBrandId();
         this.brandName = brand.getBrandName();

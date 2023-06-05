@@ -35,19 +35,17 @@ public class ProductImageController extends AbstractBaseController {
     @RequestMapping(path = "/upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE ,method = RequestMethod.POST)
     public ResponseEntity<RestAPIResponse> uploadImage(
             @PathVariable(name = "id") String id,
-            @RequestPart(required = true) MultipartFile file,
-            HttpServletRequest request
+            @RequestPart(required = true) MultipartFile file
             ) throws IOException {
         try {
-            AuthUser user = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
-            return responseUtil.successResponse(productImageService.uploadImage(path, id, file, user.getId()));
+            return responseUtil.successResponse(productImageService.uploadImage(path, id, file));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Operation(summary = "deleteImage")
-    @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<RestAPIResponse> deleteImage(
             @PathVariable(name = "id") String id
     ) {

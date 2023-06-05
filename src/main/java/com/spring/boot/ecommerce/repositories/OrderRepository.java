@@ -1,5 +1,6 @@
 package com.spring.boot.ecommerce.repositories;
 
+import com.spring.boot.ecommerce.common.enums.OrderStatus;
 import com.spring.boot.ecommerce.entity.OrderInfo;
 import com.spring.boot.ecommerce.model.response.dashboard.Chart;
 import com.spring.boot.ecommerce.model.response.order.ListOrderResponse;
@@ -18,9 +19,9 @@ public interface OrderRepository extends JpaRepository<OrderInfo, String> {
 
     @Query(value = " SELECT new com.spring.boot.ecommerce.model.response.order.ListOrderResponse(u, oi) " +
             "FROM OrderProduct op, OrderInfo oi, User u " +
-            "WHERE op.orderId = oi.id and oi.customerId = u.id" +
+            "WHERE op.orderId = oi.id and oi.customerId = u.id and oi.status = :status" +
             " ORDER BY oi.createdDate DESC")
-    Page<ListOrderResponse> getAllByIdExists(Pageable pageable);
+    Page<ListOrderResponse> getAllByStatus(Pageable pageable, OrderStatus status);
 
     @Query(value = "SELECT DATE_FORMAT(oi.createdDate, '%m-%Y') AS M_and_Y, COUNT(oi.id) AS count_order" +
             " FROM OrderInfo oi" +

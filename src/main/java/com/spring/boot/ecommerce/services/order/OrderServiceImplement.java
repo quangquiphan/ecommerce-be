@@ -1,7 +1,7 @@
 package com.spring.boot.ecommerce.services.order;
 
 import com.spring.boot.ecommerce.auth.AuthUser;
-import com.spring.boot.ecommerce.common.enums.Status;
+import com.spring.boot.ecommerce.common.enums.OrderStatus;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.common.utils.UniqueID;
@@ -52,109 +52,38 @@ public class OrderServiceImplement implements OrderService {
         orderInfo.setPhoneNumber(orderRequest.getPhoneNumber());
         orderInfo.setAddressReceive(orderRequest.getAddressReceive());
         //        Order Detail
-        List<Product> products = productRepository.findAll();
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
         List<OrderProduct> orderProducts = new ArrayList<>();
 
         for (int i = 0; i < orderRequest.getOrderDetail().size(); i++) {
+            Product product = productRepository.getById(orderRequest.getOrderDetail().get(i).getProductId());
+
+            if (product == null) {
+                break;
+            }
+
+            if (product.getQuantity() < orderRequest.getOrderDetail().get(i).getQuantity()) {
+                throw new ApplicationException(RestAPIStatus.BAD_REQUEST, "");
+            }
+
             OrderProduct orderProduct = new OrderProduct();
             orderProduct.setId(UniqueID.getUUID());
             orderProduct.setOrderId(orderInfo.getId());
             orderProduct.setProductId(orderRequest.getOrderDetail().get(i).getProductId());
             orderProduct.setQuantity(orderRequest.getOrderDetail().get(i).getQuantity());
 
-            double totalSub = 0;
-            for (int j = 0; j < products.size(); j++) {
-                if (products.get(j).getId().equals(orderRequest.getOrderDetail().get(i).getProductId())) {
-                    totalSub = calcTotal(products.get(j).getPrice(), products.get(j).getDiscount(),
-                            orderRequest.getOrderDetail().get(i).getQuantity());
-                }
-            }
-
-            total += totalSub;
+            product.setQuantity(product.getQuantity() - orderProduct.getQuantity());
+            total += calcTotal(product.getPrice(), product.getDiscount(), orderProduct.getQuantity());
             orderProducts.add(orderProduct);
+
+            OrderDetailResponse orderDetailResponse = new OrderDetailResponse(product, orderProduct);
+            orderDetailResponses.add(orderDetailResponse);
+
+            productRepository.save(product);
         }
 
         orderInfo.setTotal(total);
-        orderInfo.setStatus(Status.PENDING);
-
-        orderRepository.save(orderInfo);
-        orderDetailRepository.saveAll(orderProducts);
-        return new OrderResponse(authUser, orderInfo, orderDetailResponses);
-    }
-
-    @Override
-    public OrderResponse updateOrder(String id, OrderRequest orderRequest, AuthUser authUser) {
-        //        Order
-        OrderInfo orderInfo = orderRepository.getById(id);
-
-        if (orderInfo == null) {
-            throw new ApplicationException(RestAPIStatus.NOT_FOUND);
-        }
-
-        double total = 0;
-
-        orderDetailRepository.deleteAllByOrderId(orderInfo.getId());
-
-        orderInfo.setCustomerId(authUser.getId());
-        orderInfo.setPhoneNumber(orderRequest.getPhoneNumber());
-        orderInfo.setAddressReceive(orderRequest.getAddressReceive());
-
-        //        Order Detail
-        List<Product> products = productRepository.findAll();
-        List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
-        List<OrderProduct> orderProducts = new ArrayList<>();
-
-        for (int i = 0; i < orderRequest.getOrderDetail().size(); i++) {
-            if (orderRequest.getOrderDetail().get(i).getStatus().equals(Status.IN_ACTIVE) &&
-                    (!orderRequest.getOrderDetail().get(i).getId().isEmpty() ||
-                            orderRequest.getOrderDetail().get(i).getId() != null)) {
-                OrderProduct orderProduct = orderDetailRepository.getById(orderRequest.getOrderDetail().get(i).getProductId());
-                orderDetailRepository.delete(orderProduct);
-                break;
-            }
-
-            double totalSub = 0;
-            if ((orderRequest.getOrderDetail().get(i).getId().isEmpty() ||
-                    orderRequest.getOrderDetail().get(i).getId() == null) &&
-                    orderRequest.getOrderDetail().get(i).getStatus().equals(Status.IN_ACTIVE))  {
-                break;
-            }
-
-            if ((orderRequest.getOrderDetail().get(i).getId().isEmpty() ||
-                    orderRequest.getOrderDetail().get(i).getId() == null)) {
-                OrderProduct orderProduct = new OrderProduct();
-                orderProduct.setId(UniqueID.getUUID());
-                orderProduct.setOrderId(orderInfo.getId());
-                orderProduct.setProductId(orderRequest.getOrderDetail().get(i).getProductId());
-                orderProduct.setQuantity(orderRequest.getOrderDetail().get(i).getQuantity());
-
-                for (int j = 0; j < products.size(); j++) {
-                    if (products.get(j).equals(orderRequest.getOrderDetail().get(i))) {
-                        totalSub = calcTotal(products.get(j).getPrice(), products.get(j).getDiscount(),
-                                orderRequest.getOrderDetail().get(i).getQuantity());
-                    }
-                }
-
-                total += totalSub;
-                orderProducts.add(orderProduct);
-                break;
-            }
-
-            OrderProduct orderProduct = orderDetailRepository.getById(orderRequest.getOrderDetail().get(i).getId());
-            orderProduct.setQuantity(orderRequest.getOrderDetail().get(i).getQuantity());
-
-            for (int j = 0; j < products.size(); j++) {
-                if (products.get(j).equals(orderRequest.getOrderDetail().get(i))) {
-                    totalSub = calcTotal(products.get(j).getPrice(), products.get(j).getDiscount(),
-                            orderRequest.getOrderDetail().get(i).getQuantity());
-                }
-            }
-
-            total += totalSub;
-            orderProducts.add(orderProduct);
-        }
-        orderInfo.setTotal(total);
+        orderInfo.setStatus(OrderStatus.ORDERED);
 
         orderRepository.save(orderInfo);
         orderDetailRepository.saveAll(orderProducts);
@@ -176,6 +105,18 @@ public class OrderServiceImplement implements OrderService {
     }
 
     @Override
+    public OrderInfo changeStatus(String id, OrderStatus status) {
+        OrderInfo order = orderRepository.getById(id);
+
+        if (order == null) {
+            throw new ApplicationException(RestAPIStatus.NOT_FOUND);
+        }
+
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
+    @Override
     public void delete(String id) {
         OrderInfo orderInfo = orderRepository.getById(id);
 
@@ -188,10 +129,10 @@ public class OrderServiceImplement implements OrderService {
     }
 
     @Override
-    public Page<ListOrderResponse> getAllOrder(int pageNumber, int pageSize) {
+    public Page<ListOrderResponse> getAllOrder(int pageNumber, int pageSize, OrderStatus status) {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
 
-        return orderRepository.getAllByIdExists(pageRequest);
+        return orderRepository.getAllByStatus(pageRequest, status);
     }
 
     private double calcTotal(double price, double discount, int quantity) {

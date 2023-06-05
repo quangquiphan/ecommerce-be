@@ -29,7 +29,4 @@ public class Category extends BaseEntity {
 
     @Column(name = "status")
     private Status status;
-
-    @Column(name = "user_id", nullable = false)
-    private String userId;
 }

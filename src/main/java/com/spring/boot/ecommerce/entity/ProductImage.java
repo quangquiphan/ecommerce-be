@@ -29,7 +29,4 @@ public class ProductImage extends BaseEntity {
 
     @Column(name = "path", length = 255)
     private String path;
-
-    @Column(name = "user_id")
-    private String userId;
 }

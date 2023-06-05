@@ -3,11 +3,15 @@ package com.spring.boot.ecommerce.controller;
 import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.auth.AuthorizeValidator;
 import com.spring.boot.ecommerce.common.AbstractBaseController;
+import com.spring.boot.ecommerce.common.enums.OrderStatus;
 import com.spring.boot.ecommerce.common.enums.UserRole;
+import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
+import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.model.request.order.OrderRequest;
 import com.spring.boot.ecommerce.model.response.PagingResponse;
+import com.spring.boot.ecommerce.services.notification.NotificationService;
 import com.spring.boot.ecommerce.services.order.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 public class OrderController extends AbstractBaseController {
 
     final private OrderService orderService;
+    final private NotificationService notificationService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, NotificationService notificationService) {
         this.orderService = orderService;
+        this.notificationService = notificationService;
     }
 
     @Operation(summary = "createOrder")
@@ -33,19 +39,24 @@ public class OrderController extends AbstractBaseController {
             HttpServletRequest request
     ) {
         AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
+
+        if (authUser == null) {
+            throw new ApplicationException(RestAPIStatus.NOT_FOUND);
+        }
+
+        notificationService.createNotification(authUser, OrderStatus.ORDERED.toString());
+
         return responseUtil.successResponse(orderService.createOrder(orderRequest, authUser));
     }
 
-    @Operation(summary = "updateOrder")
-    @AuthorizeValidator({UserRole.CUSTOMER, UserRole.ADMIN})
+    @Operation(summary = "changeStatus")
+    @AuthorizeValidator(UserRole.ADMIN)
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.PUT)
-    public ResponseEntity<RestAPIResponse> updateOrder(
+    public ResponseEntity<RestAPIResponse> changeStatus(
             @PathVariable String id,
-            @RequestBody OrderRequest orderRequest,
-            HttpServletRequest request
+            @RequestParam OrderStatus status
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
-        return responseUtil.successResponse(orderService.updateOrder(id, orderRequest, authUser));
+        return responseUtil.successResponse(orderService.changeStatus(id, status));
     }
 
     @Operation(summary = "getOrder")
@@ -73,8 +84,9 @@ public class OrderController extends AbstractBaseController {
     @RequestMapping(path = ApiPath.ALL, method = RequestMethod.GET)
     public ResponseEntity<RestAPIResponse> getAllOrder(
             @RequestParam(defaultValue = "1") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(name = "status") OrderStatus status
     ) {
-        return responseUtil.successResponse(new PagingResponse(orderService.getAllOrder(pageNumber, pageSize)));
+        return responseUtil.successResponse(new PagingResponse(orderService.getAllOrder(pageNumber, pageSize, status)));
     }
 }

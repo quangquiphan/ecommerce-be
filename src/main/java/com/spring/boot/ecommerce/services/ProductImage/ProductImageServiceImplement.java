@@ -4,19 +4,15 @@ import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.common.utils.UniqueID;
 import com.spring.boot.ecommerce.entity.ProductImage;
-import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.response.product.ProductImageResponse;
 import com.spring.boot.ecommerce.repositories.ProductImageRepository;
 import com.spring.boot.ecommerce.repositories.UserRepository;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,15 +36,12 @@ public class ProductImageServiceImplement implements ProductImageService{
     private final Path root = Paths.get("src/main/resources/images");
 
     @Override
-    public ProductImage uploadImage(String path, String id, MultipartFile multipartFile, String userId)
+    public ProductImage uploadImage(String path, String id, MultipartFile multipartFile)
             throws IOException {
-        User user = userRepository.getById(userId);
-        if (user == null) {
-            throw new ApplicationException(RestAPIStatus.NOT_FOUND);
-        }
 
         // File name
-        String name = new Date().getTime() + "." + getFileExtension(multipartFile.getOriginalFilename());
+        String name = new Date().getTime() + "-" + multipartFile.getOriginalFilename() +
+                "." + getFileExtension(multipartFile.getOriginalFilename());
 
         // Full path
         String filePath = path + name;
@@ -67,41 +60,6 @@ public class ProductImageServiceImplement implements ProductImageService{
         image.setId(UniqueID.getUUID());
         image.setProductId(id);
         image.setPath(name);
-        image.setUserId(user.getId());
-
-        return productImageRepository.save(image);
-    }
-
-    @Override
-    public ProductImage updateImage(String path, String id, MultipartFile multipartFile, String userId) throws IOException {
-        ProductImage image = productImageRepository.getById(id);
-        if (image == null) {
-            throw new ApplicationException(RestAPIStatus.NOT_FOUND);
-        }
-
-        User user = userRepository.getById(userId);
-        if (user == null) {
-            throw new ApplicationException(RestAPIStatus.NOT_FOUND);
-        }
-
-        // File name
-        String name = multipartFile.getOriginalFilename();
-
-        // Full path
-        String filePath = path + name;
-
-        // create folder if not create
-        File file = new File(path);
-
-        if (!file.exists()) {
-            file.mkdir();
-        }
-
-        // file copy
-        Files.copy(multipartFile.getInputStream(), Paths.get(filePath));
-
-        image.setPath(name);
-        image.setUserId(user.getId());
 
         return productImageRepository.save(image);
     }
@@ -118,7 +76,7 @@ public class ProductImageServiceImplement implements ProductImageService{
                                 .path(dbFile.getPath())
                                 .toUriString();
 
-                        return new ProductImageResponse(dbFile.getId(), file, dbFile.getPath(), dbFile.getUserId());
+                        return new ProductImageResponse(dbFile.getId(), file, dbFile.getPath());
                     }
             ).collect(Collectors.toList());
             

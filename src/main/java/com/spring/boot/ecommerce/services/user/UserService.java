@@ -1,6 +1,6 @@
 package com.spring.boot.ecommerce.services.user;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
+import com.spring.boot.ecommerce.entity.Session;
 import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.request.user.SignUpRequest;
 import com.spring.boot.ecommerce.model.request.user.UpdateUserRequest;
@@ -11,11 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 public interface UserService {
-    User signUp(SignUpRequest signUpRequest, PasswordEncoder passwordEncoder);
+    Session signUp(SignUpRequest signUpRequest, PasswordEncoder passwordEncoder);
 
     UserDetailResponse findById(String id);
-
-    User getById(String id);
 
     User updateProfileUser(String id, UpdateUserRequest userRequest);
 

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SessionRepository extends JpaRepository<Session, String> {
-    Session getById(String token);
+    Session getByAccessToken(String token);
 
     List<Session> findAllByUserId(String id);
 }

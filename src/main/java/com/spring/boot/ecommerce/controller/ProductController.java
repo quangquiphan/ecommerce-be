@@ -1,10 +1,8 @@
 package com.spring.boot.ecommerce.controller;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.auth.AuthorizeValidator;
 import com.spring.boot.ecommerce.common.AbstractBaseController;
 import com.spring.boot.ecommerce.common.enums.UserRole;
-import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.model.request.product.ProductRequest;
 import com.spring.boot.ecommerce.model.response.PagingResponse;
@@ -32,9 +30,8 @@ public class ProductController extends AbstractBaseController {
             @RequestBody ProductRequest productRequest,
             HttpServletRequest servletRequest
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
         return responseUtil.successResponse( new ProductResponse(
-                        productService.addProduct(productRequest, authUser),
+                        productService.addProduct(productRequest),
                         productRequest.getCategoryIds())
         );
     }
@@ -47,9 +44,8 @@ public class ProductController extends AbstractBaseController {
             @RequestBody ProductRequest productRequest,
             HttpServletRequest servletRequest
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
         return responseUtil.successResponse(new ProductResponse(
-                productService.updateProduct(id, productRequest, authUser),
+                productService.updateProduct(id, productRequest),
                 productRequest.getCategoryIds())
         );
     }
@@ -64,18 +60,21 @@ public class ProductController extends AbstractBaseController {
 
     @Operation(summary = "getAllProduct")
     @RequestMapping(path = ApiPath.ALL, method = RequestMethod.GET)
-    public ResponseEntity<RestAPIResponse> getAllProduct() {
-        return responseUtil.successResponse(productService.getAllProduct());
+    public ResponseEntity<RestAPIResponse> getAllProduct(
+            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return responseUtil.successResponse(
+                new PagingResponse(productService.getAllProduct(), productService.getPage(pageNumber, pageSize))
+        );
     }
 
-    @Operation(summary = "deleleProduct")
+    @Operation(summary = "deleteProduct")
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.DELETE)
-    public ResponseEntity<RestAPIResponse> getProduct(
-            @PathVariable String id,
-            HttpServletRequest request
+    public ResponseEntity<RestAPIResponse> deleteProduct(
+            @PathVariable String id
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
-        productService.delete(id, authUser);
+        productService.delete(id);
         return responseUtil.successResponse("Delete successfully!");
     }
 }

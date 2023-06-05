@@ -13,12 +13,10 @@ public class BrandResponse {
     private String id;
     private String brandName;
     private Status status;
-    private String userId;
 
     public BrandResponse(Brand brand) {
         this.id = brand.getId();
         this.brandName = brand.getBrandName();
         this.status = brand.getStatus();
-        this.userId = brand.getUserId();
     }
 }

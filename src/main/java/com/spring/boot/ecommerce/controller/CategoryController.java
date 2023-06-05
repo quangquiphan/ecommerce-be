@@ -1,10 +1,8 @@
 package com.spring.boot.ecommerce.controller;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.auth.AuthorizeValidator;
 import com.spring.boot.ecommerce.common.AbstractBaseController;
 import com.spring.boot.ecommerce.common.enums.UserRole;
-import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.entity.Category;
 import com.spring.boot.ecommerce.model.request.category.CategoryRequest;
@@ -15,8 +13,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping(ApiPath.CATEGORY_APIs)
@@ -31,11 +27,9 @@ public class CategoryController extends AbstractBaseController {
     @AuthorizeValidator(UserRole.ADMIN)
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<RestAPIResponse> addCategory(
-            @RequestBody CategoryRequest categoryRequest,
-            HttpServletRequest servletRequest
+            @RequestBody CategoryRequest categoryRequest
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
-        Category category = categoryService.addCategory(categoryRequest, authUser);
+        Category category = categoryService.addCategory(categoryRequest);
         return responseUtil.successResponse(
                 new CategoryResponse(category)
         );
@@ -46,11 +40,9 @@ public class CategoryController extends AbstractBaseController {
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.PUT)
     public ResponseEntity<RestAPIResponse> updateCategory(
             @PathVariable String id,
-            @RequestBody CategoryRequest categoryRequest,
-            HttpServletRequest servletRequest
+            @RequestBody CategoryRequest categoryRequest
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(servletRequest.getHeader(Constant.HEADER_TOKEN));
-        Category category = categoryService.updateCategory(id, categoryRequest, authUser);
+        Category category = categoryService.updateCategory(id, categoryRequest);
         return responseUtil.successResponse(
                 new CategoryResponse(category)
         );
@@ -78,14 +70,12 @@ public class CategoryController extends AbstractBaseController {
         );
     }
 
-    @Operation(summary = "deleleCategory")
+    @Operation(summary = "deleteCategory")
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.DELETE)
-    public ResponseEntity<RestAPIResponse> getCategory(
-            @PathVariable String id,
-            HttpServletRequest request
+    public ResponseEntity<RestAPIResponse> deleteCategory(
+            @PathVariable String id
     ) {
-        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
-        categoryService.delete(id, authUser);
+        categoryService.delete(id);
         return responseUtil.successResponse("Delete successfully!");
     }
 }

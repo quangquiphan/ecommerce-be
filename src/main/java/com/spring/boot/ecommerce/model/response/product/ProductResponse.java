@@ -23,7 +23,6 @@ public class ProductResponse {
     private Double discount;
     private int quantity;
     private Status status;
-    private String userId;
 
     private List<String> categoryIds;
 
@@ -41,7 +40,6 @@ public class ProductResponse {
         this.discount = product.getDiscount();
         this.quantity = product.getQuantity();
         this.status = product.getStatus();
-        this.userId = product.getUserId();
         this.categoryIds = categoryIds;
         this.brandId = product.getBrandId();
         this.createdDate = product.getCreatedDate();

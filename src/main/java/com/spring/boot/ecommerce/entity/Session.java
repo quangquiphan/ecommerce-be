@@ -21,8 +21,8 @@ import java.util.Date;
 @Table(name = "session")
 public class Session extends BaseEntity {
     @Id
-    @Column(name = "id", nullable = false, updatable = false)
-    private String id;
+    @Column(name = "access_token", nullable = false, updatable = false)
+    private String accessToken;
 
     @Column(name = "user_id", length = 64)
     private String userId;

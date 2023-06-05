@@ -36,7 +36,6 @@ public class UserDetailResponse {
         this.fullName = getFullName(firstName, lastName);
         this.phoneNumber = user.getPhoneNumber();
         this.email = user.getEmail();
-        this.country = user.getCountry();
         this.address = user.getAddress();
         this.status = user.getStatus();
         this.userRole = user.getUserRole();
@@ -53,7 +52,6 @@ public class UserDetailResponse {
         this.fullName = getFullName(user.getFirstName(), user.getLastName());
         this.phoneNumber = user.getPhoneNumber();
         this.email = user.getEmail();
-        this.country = user.getCountry();
         this.address = user.getAddress();
         this.status = user.getStatus();
         this.userRole = user.getUserRole();

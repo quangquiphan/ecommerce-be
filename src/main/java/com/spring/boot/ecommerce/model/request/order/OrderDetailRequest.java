@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
 public class OrderDetailRequest {
-    private String id;
     private String productId;
     private int quantity;
     private Status status;

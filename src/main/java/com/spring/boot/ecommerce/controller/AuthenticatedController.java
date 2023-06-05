@@ -7,7 +7,6 @@ import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.entity.Session;
-import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.response.auth.SignInResponse;
 import com.spring.boot.ecommerce.model.request.auth.SignInRequest;
 import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
@@ -46,7 +45,7 @@ public class AuthenticatedController extends AbstractBaseController {
         UserDetailResponse user = userService.findById(session.getUserId());
         return responseUtil.successResponse(
                 new SignInResponse(
-                        session.getId(),
+                        session.getAccessToken(),
                         session.getExpiryDate().getTime(),
                         user.getUserRole(),
                         user.getStatus()));

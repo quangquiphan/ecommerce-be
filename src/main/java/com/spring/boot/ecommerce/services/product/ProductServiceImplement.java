@@ -1,6 +1,5 @@
 package com.spring.boot.ecommerce.services.product;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.common.enums.Status;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
@@ -40,7 +39,7 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public Product addProduct(ProductRequest request, AuthUser authUser) {
+    public Product addProduct(ProductRequest request) {
         Product product = new Product();
         List<ProductCategory> productCategories = new ArrayList<>();
 
@@ -55,7 +54,6 @@ public class ProductServiceImplement implements ProductService {
         product.setDiscount(request.getDiscount());
         product.setQuantity(request.getQuantity());
         product.setStatus(Status.ACTIVE);
-        product.setUserId(authUser.getId());
 
         request.getCategoryIds().forEach((item) -> {
             Category category = categoryRepository.getById(item);
@@ -74,7 +72,7 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public Product updateProduct(String id, ProductRequest request, AuthUser authUser) {
+    public Product updateProduct(String id, ProductRequest request) {
         Product product = productRepository.getById(id);
 
         if (product == null) {
@@ -88,7 +86,6 @@ public class ProductServiceImplement implements ProductService {
         product.setPrice(request.getPrice());
         product.setDiscount(request.getDiscount());
         product.setQuantity(request.getQuantity());
-        product.setUserId(authUser.getId());
         product.setStatus(request.getStatus());
 
         if (!request.getCategoryIds().isEmpty() || request.getCategoryIds() != null) {
@@ -159,7 +156,13 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public void delete(String id, AuthUser authUser) {
+    public Page<Product> getPage(int pageNumber, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
+        return productRepository.findAll(pageRequest);
+    }
+
+    @Override
+    public void delete(String id) {
         Product product = productRepository.getById(id);
 
         if (product == null) {
@@ -176,7 +179,6 @@ public class ProductServiceImplement implements ProductService {
         }
 
         product.setStatus(Status.IN_ACTIVE);
-        product.setUserId(authUser.getId());
         productRepository.save(product);
     }
 }

@@ -13,12 +13,10 @@ public class CategoryResponse {
     private String id;
     private String categoryName;
     private Status status;
-    private String userId;
 
     public CategoryResponse(Category category) {
         this.id = category.getId();
         this.categoryName = category.getCategoryName();
         this.status = category.getStatus();
-        this.userId = category.getUserId();
     }
 }

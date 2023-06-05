@@ -1,6 +1,5 @@
 package com.spring.boot.ecommerce.services.category;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.common.enums.Status;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
@@ -11,10 +10,7 @@ import com.spring.boot.ecommerce.model.response.category.ListCategoryResponse;
 import com.spring.boot.ecommerce.repositories.CategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CategoryServiceImplement implements CategoryService{
@@ -26,7 +22,7 @@ public class CategoryServiceImplement implements CategoryService{
     }
 
     @Override
-    public Category addCategory(CategoryRequest categoryRequest, AuthUser authUser) {
+    public Category addCategory(CategoryRequest categoryRequest) {
         Category category = new Category();
 
         if (categoryRequest.getCategoryName() == null || categoryRequest.getCategoryName().isEmpty()) {
@@ -36,14 +32,13 @@ public class CategoryServiceImplement implements CategoryService{
         category.setId(UniqueID.getUUID());
         category.setCategoryName(categoryRequest.getCategoryName());
         category.setStatus(categoryRequest.getStatus());
-        category.setUserId(authUser.getId());
 
         categoryRepository.save(category);
         return category;
     }
 
     @Override
-    public Category updateCategory(String id, CategoryRequest categoryRequest, AuthUser authUser) {
+    public Category updateCategory(String id, CategoryRequest categoryRequest) {
         Category category = categoryRepository.getById(id);
 
         if (category == null) {
@@ -52,7 +47,6 @@ public class CategoryServiceImplement implements CategoryService{
 
         category.setCategoryName(categoryRequest.getCategoryName());
         category.setStatus(categoryRequest.getStatus());
-        category.setUserId(authUser.getId());
 
         categoryRepository.save(category);
         return category;
@@ -76,7 +70,7 @@ public class CategoryServiceImplement implements CategoryService{
     }
 
     @Override
-    public void delete(String id, AuthUser authUser) {
+    public void delete(String id) {
         Category category = categoryRepository.getById(id);
 
         if (category == null) {
@@ -90,7 +84,6 @@ public class CategoryServiceImplement implements CategoryService{
         }
 
         category.setStatus(Status.IN_ACTIVE);
-        category.setUserId(authUser.getId());
         categoryRepository.save(category);
     }
 }

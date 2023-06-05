@@ -29,8 +29,6 @@ public class AuthUser implements UserDetails  {
     @Getter
     private String phoneNumber;
     @Getter
-    private String country;
-    @Getter
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
     @Getter
@@ -54,7 +52,6 @@ public class AuthUser implements UserDetails  {
         this.lastName = lastName;
         this.email = user.getEmail();
         this.phoneNumber = user.getPhoneNumber();
-        this.country = user.getCountry();
         this.userRole = user.getUserRole();
         this.status = user.getStatus();
     }

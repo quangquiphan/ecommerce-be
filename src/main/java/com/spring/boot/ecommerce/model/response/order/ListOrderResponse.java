@@ -34,7 +34,6 @@ public class ListOrderResponse {
         this.lastName = user.getLastName();
         this.phoneNumber = user.getPhoneNumber();
         this.email = user.getEmail();
-        this.country = user.getCountry();
         this.customerId = orderInfo.getCustomerId();
         this.addressReceive = orderInfo.getAddressReceive();
         this.phoneReceive = orderInfo.getPhoneNumber();

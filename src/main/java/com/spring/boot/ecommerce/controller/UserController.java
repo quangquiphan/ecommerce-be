@@ -1,13 +1,12 @@
 package com.spring.boot.ecommerce.controller;
 
-import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.auth.AuthorizeValidator;
 import com.spring.boot.ecommerce.common.AbstractBaseController;
 import com.spring.boot.ecommerce.common.enums.UserRole;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
-import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
+import com.spring.boot.ecommerce.entity.Session;
 import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.response.PagingResponse;
 import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
@@ -19,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -38,14 +36,14 @@ public class UserController extends AbstractBaseController {
     public ResponseEntity<RestAPIResponse> signUp(
             @RequestBody @Valid SignUpRequest signUpRequest
     ) {
-        User user = userService.signUp(signUpRequest, passwordEncoder);
-        return responseUtil.successResponse(user);
+        Session session = userService.signUp(signUpRequest, passwordEncoder);
+        return responseUtil.successResponse(session);
     }
 
     @Operation(summary = "updateProfileUser")
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.PUT)
     public ResponseEntity<RestAPIResponse> updateProfileUser(
-            @RequestParam String id,
+            @PathVariable String id,
             @RequestBody UpdateUserRequest userRequest
             ){
         User user = userService.updateProfileUser(id, userRequest);

@@ -50,7 +50,7 @@ public class SessionServiceImplement implements SessionService {
         }
 
         Session session = new Session();
-        session.setId(jwtTokenUtil.generateAccessToken(existUser));
+        session.setAccessToken(jwtTokenUtil.generateAccessToken(existUser));
         session.setUserId(existUser.getId());
         session.setCreatedDate(DateUtil.convertToUTC(new Date()));
 
@@ -70,7 +70,7 @@ public class SessionServiceImplement implements SessionService {
 
     @Override
     public String signOut(String token) {
-        Session session = sessionRepository.getById(token);
+        Session session = sessionRepository.getByAccessToken(token);
         if (session != null) {
             sessionRepository.delete(session);
         }

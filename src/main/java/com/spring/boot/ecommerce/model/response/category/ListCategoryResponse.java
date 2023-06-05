@@ -21,13 +21,11 @@ public class ListCategoryResponse {
     private String categoryName;
     private Status status;
     private long quantity;
-    private String userId;
 
     public ListCategoryResponse(Category category, long quantity){
         this.id = category.getId();
         this.categoryName = category.getCategoryName();
         this.status = category.getStatus();
         this.quantity = quantity;
-        this.userId = category.getUserId();
     }
 }

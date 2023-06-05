@@ -3,6 +3,7 @@ import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.entity.User;
+import com.spring.boot.ecommerce.repositories.UserRepository;
 import com.spring.boot.ecommerce.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,15 +18,13 @@ public class JwtTokenUtil {
     private final String JWT_SECRET = "0123456789abcdefghijklmnOPQRSTUVWXYZ!@#$%^&*()";
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     private static final long EXPIRE_DURATION = 24 * 60 * 60 * 1000;
 
     public String generateAccessToken(User user) {
         return Jwts.builder()
                 .setId(user.getId())
-                .setSubject(user.getUsername())
-                .setAudience(String.format("%s", user.getUserRole()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
@@ -40,7 +39,7 @@ public class JwtTokenUtil {
                 .setSigningKey(JWT_SECRET)
                 .parseClaimsJws(token)
                 .getBody();
-        User user = userService.getById(claims.getId());
+        User user = userRepository.getById(claims.getId());
         return new AuthUser(user);
     }
 
