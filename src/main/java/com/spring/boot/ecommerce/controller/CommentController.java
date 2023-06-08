@@ -7,6 +7,7 @@ import com.spring.boot.ecommerce.common.enums.UserRole;
 import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.model.request.comment.AddComment;
+import com.spring.boot.ecommerce.model.response.PagingResponse;
 import com.spring.boot.ecommerce.services.comment.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,11 @@ public class CommentController extends AbstractBaseController {
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return responseUtil.successResponse(commentService.getAllCommentByProductId(productId, pageNumber, pageSize));
+        return responseUtil.successResponse(
+                new PagingResponse(
+                        commentService.getListByProductId(productId),
+                        commentService.getAllCommentByProductId(productId, pageNumber, pageSize))
+        );
     }
 
     @Operation(summary = "getAllComment")
@@ -50,7 +55,7 @@ public class CommentController extends AbstractBaseController {
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return responseUtil.successResponse(commentService.getAllComment(pageNumber, pageSize));
+        return responseUtil.successResponse(new PagingResponse(commentService.getAllComment(pageNumber, pageSize)));
     }
 
     @Operation(summary = "removeComment")
