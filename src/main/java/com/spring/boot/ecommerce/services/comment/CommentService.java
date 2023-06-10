@@ -15,7 +15,7 @@ public interface CommentService {
 
     Page<Comment> getAllCommentByProductId(String productId, int pageNumber, int pageSize);
 
-    List<CommentResponse> getListByProductId(String productId);
+    CommentResponse getListByProductId(String productId, int pageNumber, int pageSize);
 
     Comment approveComment(String id);
 

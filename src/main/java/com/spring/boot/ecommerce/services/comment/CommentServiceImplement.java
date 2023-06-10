@@ -7,7 +7,9 @@ import com.spring.boot.ecommerce.common.utils.UniqueID;
 import com.spring.boot.ecommerce.entity.Comment;
 import com.spring.boot.ecommerce.entity.User;
 import com.spring.boot.ecommerce.model.request.comment.AddComment;
+import com.spring.boot.ecommerce.model.response.PagingResponse;
 import com.spring.boot.ecommerce.model.response.comment.CommentLv1;
+import com.spring.boot.ecommerce.model.response.comment.CommentLv0;
 import com.spring.boot.ecommerce.model.response.comment.CommentResponse;
 import com.spring.boot.ecommerce.repositories.CommentRepository;
 import com.spring.boot.ecommerce.repositories.UserRepository;
@@ -46,7 +48,8 @@ public class CommentServiceImplement implements CommentService {
     @Override
     public Page<CommentResponse> getAllComment(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
-        return commentRepository.getAllComment(pageRequest);
+        commentRepository.getAllComment(pageRequest);
+        return null;
     }
 
     @Override
@@ -56,14 +59,15 @@ public class CommentServiceImplement implements CommentService {
     }
 
     @Override
-    public List<CommentResponse> getListByProductId(String productId) {
-        List<CommentResponse> commentResponses = new ArrayList<>();
+    public CommentResponse getListByProductId(String productId, int pageNumber, int pageSize) {
 
-        List<Comment> comments = commentRepository.getAllCommentNotCommentId();
+        List<CommentLv0> commentLv0s = new ArrayList<>();
+
+        List<Comment> comments = commentRepository.getAllCommentNotCommentId(productId);
 
         for (int i = 0; i < comments.size(); i++) {
             User user = userRepository.getById(comments.get(i).getUserId());
-            List<CommentResponse> getAllByCommentId = commentRepository.getAllByCommentId(comments.get(i).getId());
+            List<CommentLv0> getAllByCommentId = commentRepository.getAllByCommentId(comments.get(i).getId());
             List<CommentLv1> lv1s = new ArrayList<>();
 
             for (int j = 0; j < getAllByCommentId.size(); j++) {
@@ -79,12 +83,11 @@ public class CommentServiceImplement implements CommentService {
                 }
             }
 
-            System.out.println(lv1s);
-
-            commentResponses.add(new CommentResponse(comments.get(i), user, lv1s));
+            commentLv0s.add(new CommentLv0(comments.get(i), user, lv1s));
         }
 
-        return commentResponses;
+        return new CommentResponse(commentRepository.countByProductId(productId),
+                new PagingResponse(commentLv0s, getAllCommentByProductId(productId, pageNumber, pageSize)));
     }
 
     @Override

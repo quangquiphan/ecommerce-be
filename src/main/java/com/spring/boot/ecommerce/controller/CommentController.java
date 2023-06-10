@@ -42,11 +42,7 @@ public class CommentController extends AbstractBaseController {
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return responseUtil.successResponse(
-                new PagingResponse(
-                        commentService.getListByProductId(productId),
-                        commentService.getAllCommentByProductId(productId, pageNumber, pageSize))
-        );
+        return responseUtil.successResponse(commentService.getListByProductId(productId, pageNumber, pageSize));
     }
 
     @Operation(summary = "getAllComment")

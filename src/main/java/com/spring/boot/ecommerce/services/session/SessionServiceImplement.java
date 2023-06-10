@@ -1,11 +1,13 @@
 package com.spring.boot.ecommerce.services.session;
 
+import com.spring.boot.ecommerce.auth.AuthUser;
 import com.spring.boot.ecommerce.common.enums.Status;
 import com.spring.boot.ecommerce.common.exceptions.ApplicationException;
 import com.spring.boot.ecommerce.common.utils.*;
 import com.spring.boot.ecommerce.config.jwt.JwtTokenUtil;
 import com.spring.boot.ecommerce.entity.Session;
 import com.spring.boot.ecommerce.entity.User;
+import com.spring.boot.ecommerce.model.request.auth.ChangePassword;
 import com.spring.boot.ecommerce.model.request.auth.SignInRequest;
 import com.spring.boot.ecommerce.repositories.SessionRepository;
 import com.spring.boot.ecommerce.repositories.UserRepository;
@@ -17,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SessionServiceImplement implements SessionService {
@@ -78,6 +81,29 @@ public class SessionServiceImplement implements SessionService {
     }
 
     @Override
+    public String changePassword(AuthUser authUser, ChangePassword changePassword, PasswordEncoder passwordEncoder) {
+        User user = userRepository.getById(authUser.getId());
+
+        boolean checkOldPassword = checkPassword(changePassword.getOldPassword().trim().concat(user.getPasswordSalt().trim()),
+                user.getPasswordHash(), passwordEncoder);
+
+        if (checkOldPassword == false) {
+            throw new ApplicationException(RestAPIStatus.BAD_REQUEST, "Change password failed!");
+        }
+
+        boolean checkConfirmPassword = checkConfirmPassword(changePassword.getNewPasswordHash(), changePassword.getConfirmPasswordHash());
+
+        if (checkConfirmPassword == false) {
+            throw new ApplicationException(RestAPIStatus.BAD_REQUEST, "Confirm password not matches with password");
+        }
+
+        user.setPasswordHash(setPasswordHash(passwordEncoder, changePassword.getNewPasswordHash(), user.getPasswordSalt()));
+
+        userRepository.save(user);
+        return "Successfully!";
+    }
+
+    @Override
     public Session findById(String token) {
         return sessionRepository.getById(token);
     }
@@ -90,5 +116,13 @@ public class SessionServiceImplement implements SessionService {
 
     private Boolean checkPassword(String passwordRequest, String password, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(passwordRequest, password);
+    }
+
+    private String setPasswordHash(PasswordEncoder passwordEncoder, String password, String passwordSalt) {
+        return passwordEncoder.encode(password.trim().concat(passwordSalt));
+    }
+
+    private Boolean checkConfirmPassword(String passwordHash, String confirmPasswordHash) {
+        return Objects.equals(passwordHash, confirmPasswordHash);
     }
 }

@@ -7,6 +7,7 @@ import com.spring.boot.ecommerce.common.utils.Constant;
 import com.spring.boot.ecommerce.common.utils.RestAPIResponse;
 import com.spring.boot.ecommerce.common.utils.RestAPIStatus;
 import com.spring.boot.ecommerce.entity.Session;
+import com.spring.boot.ecommerce.model.request.auth.ChangePassword;
 import com.spring.boot.ecommerce.model.response.auth.SignInResponse;
 import com.spring.boot.ecommerce.model.request.auth.SignInRequest;
 import com.spring.boot.ecommerce.model.response.user.UserDetailResponse;
@@ -49,6 +50,16 @@ public class AuthenticatedController extends AbstractBaseController {
                         session.getExpiryDate().getTime(),
                         user.getUserRole(),
                         user.getStatus()));
+    }
+
+    @Operation(summary = "changePassword")
+    @RequestMapping(path = "/change-password", method = RequestMethod.PUT)
+    public ResponseEntity<RestAPIResponse> changePassword(
+            @RequestBody @Valid ChangePassword changePassword,
+            HttpServletRequest request
+            ) {
+        AuthUser authUser = jwtTokenUtil.getUserIdFromJWT(request.getHeader(Constant.HEADER_TOKEN));
+        return responseUtil.successResponse(sessionService.changePassword(authUser, changePassword, passwordEncoder));
     }
 
     @Operation(summary = "signOut")
