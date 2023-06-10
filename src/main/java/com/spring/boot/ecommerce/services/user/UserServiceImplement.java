@@ -96,7 +96,6 @@ public class UserServiceImplement implements UserService {
     @Override
     public Page<User> getAllUser(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
-        System.out.println(userRepository.findAll(pageRequest));
         return userRepository.findAll(pageRequest);
     }
 

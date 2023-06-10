@@ -78,7 +78,6 @@ public class CategoryServiceImplement implements CategoryService{
         }
 
         if (category.getStatus().equals(Status.IN_ACTIVE)) {
-            System.out.println("1");
             categoryRepository.deleteById(category.getId());
             return;
         }

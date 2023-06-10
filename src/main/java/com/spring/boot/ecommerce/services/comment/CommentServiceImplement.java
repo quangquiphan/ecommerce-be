@@ -75,10 +75,8 @@ public class CommentServiceImplement implements CommentService {
                 if (getAllByCommentId.get(j).getUserReplyId().isEmpty() || getAllByCommentId.get(j).getUserReplyId().equals("")) {
                     CommentLv1 cm1 = commentRepository.getByIdNotUserReplyId(getAllByCommentId.get(j).getId());
                     lv1s.add(cm1);
-                    System.out.println();
                 } else {
                     CommentLv1 cm1 = commentRepository.getByIdAndUserReplyId(getAllByCommentId.get(j).getId(), getAllByCommentId.get(j).getUserReplyId());
-                    System.out.println(cm1);
                     lv1s.add(cm1);
                 }
             }
