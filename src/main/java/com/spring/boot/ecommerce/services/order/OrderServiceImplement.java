@@ -105,14 +105,14 @@ public class OrderServiceImplement implements OrderService {
     }
 
     @Override
-    public OrderInfo changeStatus(String id, OrderStatus status) {
+    public OrderInfo changeStatus(String id, String status) {
         OrderInfo order = orderRepository.getById(id);
 
         if (order == null) {
             throw new ApplicationException(RestAPIStatus.NOT_FOUND);
         }
 
-        order.setStatus(status);
+        order.setStatus(OrderStatus.valueOf(status));
         return orderRepository.save(order);
     }
 

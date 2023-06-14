@@ -13,7 +13,7 @@ public interface OrderService {
 
     OrderResponse getOrder(String id);
 
-    OrderInfo changeStatus(String id, OrderStatus status);
+    OrderInfo changeStatus(String id, String status);
 
     void delete(String id);
 

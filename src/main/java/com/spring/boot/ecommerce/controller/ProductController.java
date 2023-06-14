@@ -69,6 +69,20 @@ public class ProductController extends AbstractBaseController {
         );
     }
 
+    @Operation(summary = "getAllProduct")
+    @RequestMapping(path = "/search", method = RequestMethod.GET)
+    public ResponseEntity<RestAPIResponse> searchProducts(
+            @RequestParam String keyword
+    ) {
+        return responseUtil.successResponse(productService.searchProduct(keyword));
+    }
+
+    @Operation(summary = "getAllProduct")
+    @RequestMapping(path = "/homepage", method = RequestMethod.GET)
+    public ResponseEntity<RestAPIResponse> getHomepage() {
+        return responseUtil.successResponse(productService.getHomepageProduct());
+    }
+
     @Operation(summary = "deleteProduct")
     @RequestMapping(path = ApiPath.ID, method = RequestMethod.DELETE)
     public ResponseEntity<RestAPIResponse> deleteProduct(

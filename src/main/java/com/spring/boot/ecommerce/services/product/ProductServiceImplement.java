@@ -7,7 +7,9 @@ import com.spring.boot.ecommerce.common.utils.UniqueID;
 import com.spring.boot.ecommerce.entity.*;
 import com.spring.boot.ecommerce.model.request.product.ProductRequest;
 import com.spring.boot.ecommerce.model.response.product.GetProductResponse;
+import com.spring.boot.ecommerce.model.response.product.HomePage;
 import com.spring.boot.ecommerce.model.response.product.ProductImageResponse;
+import com.spring.boot.ecommerce.model.response.product.ProductResponse;
 import com.spring.boot.ecommerce.repositories.*;
 import com.spring.boot.ecommerce.services.ProductImage.ProductImageService;
 import org.springframework.data.domain.Page;
@@ -138,9 +140,64 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
+    public HomePage getHomepageProduct() {
+        // Get new product
+        List<GetProductResponse> newProducts = new ArrayList<>();
+        List<Product> products = productRepository.getByCreatedDate();
+
+        for (int i = 0; i < products.size(); i++) {
+            List<ProductImageResponse> images = productImageService.loadImage(products.get(i).getId());
+            List<Category> categories = productCategoryRepository.getAllByProductId(products.get(i).getId());
+
+            Brand brand = brandRepository.getById(products.get(i).getBrandId());
+
+            GetProductResponse productResponse = new GetProductResponse(products.get(i), categories, images, brand);
+            newProducts.add(productResponse);
+        }
+
+        // Get discount product
+        List<GetProductResponse> discountProducts = new ArrayList<>();
+        List<Product> listProducts = productRepository.getByDiscount();
+
+        for (int i = 0; i < listProducts.size(); i++) {
+            List<ProductImageResponse> images = productImageService.loadImage(listProducts.get(i).getId());
+            List<Category> categories = productCategoryRepository.getAllByProductId(listProducts.get(i).getId());
+
+            Brand brand = brandRepository.getById(listProducts.get(i).getBrandId());
+
+            GetProductResponse productResponse = new GetProductResponse(listProducts.get(i), categories, images, brand);
+            discountProducts.add(productResponse);
+        }
+        return new HomePage(newProducts, discountProducts);
+    }
+
+    @Override
     public List<GetProductResponse> getAllProduct() {
         List<GetProductResponse> productResponses = new ArrayList<>();
         List<Product> products = productRepository.findAll();
+
+        for (int i = 0; i < products.size(); i++) {
+            List<ProductImageResponse> images = productImageService.loadImage(products.get(i).getId());
+            List<Category> categories = productCategoryRepository.getAllByProductId(products.get(i).getId());
+
+            Brand brand = brandRepository.getById(products.get(i).getBrandId());
+
+            GetProductResponse productResponse = new GetProductResponse(products.get(i), categories, images, brand);
+            productResponses.add(productResponse);
+        }
+
+        return productResponses;
+    }
+
+    @Override
+    public List<GetProductResponse> filterAllProduct() {
+        return null;
+    }
+
+    @Override
+    public List<GetProductResponse> searchProduct(String keyword) {
+        List<GetProductResponse> productResponses = new ArrayList<>();
+        List<Product> products = productRepository.searchAllByProductNameOrId(keyword);
 
         for (int i = 0; i < products.size(); i++) {
             List<ProductImageResponse> images = productImageService.loadImage(products.get(i).getId());

@@ -51,10 +51,10 @@ public class OrderController extends AbstractBaseController {
 
     @Operation(summary = "changeStatus")
     @AuthorizeValidator(UserRole.ADMIN)
-    @RequestMapping(path = ApiPath.ID, method = RequestMethod.PUT)
+    @RequestMapping(method = RequestMethod.PUT)
     public ResponseEntity<RestAPIResponse> changeStatus(
             @PathVariable String id,
-            @RequestParam OrderStatus status
+            @RequestParam(name = "status") String status
     ) {
         return responseUtil.successResponse(orderService.changeStatus(id, status));
     }
